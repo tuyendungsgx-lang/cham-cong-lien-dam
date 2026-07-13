@@ -127,6 +127,11 @@ main{max-width:1200px;margin:18px auto;padding:0 12px 80px}.grid{display:grid;gr
 </div>
 
 <section id="dashboard" class="panel active">
+<div class="card no-print" id="legacyImportCard" style="border:2px solid #f59e0b;background:#fffbeb">
+<h2>Khôi phục dữ liệu từ chương trình cũ</h2>
+<p class="mini">Chọn file <b>SaoLuu_ChamCong_....json</b>. Chương trình sẽ gộp nhân viên, nhật ký chấm công, tăng ca, ngày lễ và vị trí vào dữ liệu hiện tại; dữ liệu mới đang có sẽ không bị xóa.</p>
+<div class="actions"><label class="btn warn" for="legacyRestoreFile">Chọn file sao lưu cũ</label><input type="file" id="legacyRestoreFile" accept=".json,application/json" class="hide"><span class="mini" id="legacyRestoreStatus" aria-live="polite">Chưa chọn file.</span></div>
+</div>
 <div class="card">
 <h2>Dashboard điều hành V4.0</h2>
 <div class="row no-print">
@@ -618,6 +623,20 @@ function delHoliday(date,name){if(confirm('Xóa ngày lễ này?')){db.holidays=
 function addPosition(){const p=val('newPosition').trim();if(!p)return;if(!db.positions.includes(p))db.positions.push(p);saveDB();setVal('newPosition','');refreshAll()}
 function backup(){download('SaoLuu_ChamCong_'+todayVN()+'.json',JSON.stringify(db,null,2),'application/json')}
 function restore(e){const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);if(!d.records||!d.ots)throw Error();if(confirm('Khôi phục sẽ thay thế dữ liệu hiện tại. Tiếp tục?')){db=normalizeDB(d);saveDB();refreshAll();alert('Đã khôi phục')}}catch(err){alert('File không hợp lệ')}};reader.readAsText(f)}
+function legacyEmployeeKey(e){return String(e?.code||e?.empCode||e?.name||'').trim().toLowerCase()}
+function legacyRecordKey(r){return String(r?.id||[r?.date,r?.name,r?.timeIn,r?.timeOut,r?.leaveFrom,r?.leaveTo].join('|')).trim().toLowerCase()}
+function legacyOtKey(r){return String(r?.id||[r?.date,r?.name,r?.from,r?.to,r?.reason].join('|')).trim().toLowerCase()}
+function mergeLegacyData(source){
+ const incoming=normalizeDB(source),stats={employees:0,records:0,ots:0,holidays:0,positions:0};
+ const employees=new Map((db.employees||[]).map(e=>[legacyEmployeeKey(e),e]));
+ incoming.employees.forEach(e=>{const key=legacyEmployeeKey(e),current=employees.get(key);if(!key)return;if(!current){employees.set(key,e);stats.employees++}else employees.set(key,{...e,...current,code:current.code||e.code||'',position:current.position||e.position||'',startDate:current.startDate||e.startDate||''})});
+ const records=new Map((db.records||[]).map(r=>[legacyRecordKey(r),r]));incoming.records.forEach(r=>{const key=legacyRecordKey(r);if(key&&!records.has(key)){records.set(key,r);stats.records++}});
+ const ots=new Map((db.ots||[]).map(r=>[legacyOtKey(r),r]));incoming.ots.forEach(r=>{const key=legacyOtKey(r);if(key&&!ots.has(key)){ots.set(key,r);stats.ots++}});
+ const holidays=new Map((db.holidays||[]).map(h=>[String(h.date||'')+'|'+String(h.name||'').trim().toLowerCase(),h]));incoming.holidays.forEach(h=>{const key=String(h.date||'')+'|'+String(h.name||'').trim().toLowerCase();if(key!=='|'&&!holidays.has(key)){holidays.set(key,h);stats.holidays++}});
+ const beforePositions=new Set(db.positions||[]),positions=[...new Set([...(db.positions||[]),...(incoming.positions||[])])];stats.positions=positions.filter(p=>!beforePositions.has(p)).length;
+ db=normalizeDB({...db,employees:[...employees.values()],records:[...records.values()],ots:[...ots.values()],holidays:[...holidays.values()],positions});saveDB();refreshAll();return stats;
+}
+function restoreLegacy(e){const input=e.target,file=input.files?.[0],status=document.getElementById('legacyRestoreStatus');if(!file)return;status.textContent='Đang kiểm tra file…';const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!Array.isArray(data.employees)||!Array.isArray(data.records)||!Array.isArray(data.ots))throw new Error('File không đúng định dạng sao lưu chấm công.');if(!confirm('Gộp dữ liệu từ file '+file.name+' vào chương trình hiện tại? Dữ liệu mới sẽ được giữ nguyên.')){status.textContent='Đã hủy khôi phục.';input.value='';return}const stats=mergeLegacyData(data);const message=`Đã khôi phục: ${stats.employees} nhân viên mới, ${stats.records} dòng chấm công, ${stats.ots} dòng tăng ca, ${stats.holidays} ngày lễ.`;status.textContent=message;input.value='';alert(message+' Dữ liệu đã tự lưu và sẽ đồng bộ khi bạn đăng nhập.')}catch(err){status.textContent=err.message||'File không hợp lệ.';input.value='';alert(status.textContent)}};reader.onerror=()=>{status.textContent='Không đọc được file sao lưu.';input.value=''};reader.readAsText(file)}
 function deleteAll(){if(confirm('Bạn chắc chắn muốn xóa TOÀN BỘ dữ liệu?')){localStorage.removeItem(KEY);localStorage.removeItem(OLD_KEY);idbDelete('main');db=emptyDB();saveDB();refreshAll()}}
 function companyHeaderHtml(){return `<div class="print-head"><div class="c1">CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH</div><div class="c2">NHÀ MÁY XLCTR LIÊN ĐẦM</div></div>`}
 function signHtml(){return `<table class="sign-table"><tr><td>Người lập bảng</td><td>Quản lý<br><span style="font-weight:700">Lê Văn Quang</span></td></tr><tr><td></td><td></td></tr></table>`}
@@ -1001,6 +1020,8 @@ async function cloudAuthenticate(mode){const email=document.getElementById('clou
 function scheduleCloudSync(){clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>cloudSync(false),700)}
 async function cloudSync(force=false){if(cloudSyncPromise)return cloudSyncPromise;if(!cloudSession?.user?.id){cloudUpdateUi();return}if(!navigator.onLine){cloudSetStatus('offline','Ngoại tuyến · thay đổi đang chờ đồng bộ');return}cloudSyncPromise=(async()=>{try{cloudSetStatus('syncing','Đang đồng bộ…');const owner=cloudSession.user.id;const remote=await cloudRest(`timekeeping_state?select=payload,updated_at&owner_id=eq.${encodeURIComponent(owner)}&key=eq.main`,{cache:'no-store'});const row=remote?.[0],remoteDb=row?.payload?.db?normalizeDB(row.payload.db):null,remoteTs=Number(row?.payload?.db?.__updatedAt||0),localTs=Number(db.__updatedAt||0),pending=localStorage.getItem(CLOUD_PENDING_KEY)==='1';if(remoteDb&&remoteTs>localTs&&!pending){db=remoteDb;try{localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(OLD_KEY,JSON.stringify(db))}catch(e){}persistIndexedDB(db);refreshAll()}else if(force||pending||!remoteDb||localTs>remoteTs){await cloudRest('timekeeping_state?on_conflict=owner_id,key',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({owner_id:owner,key:'main',payload:{db},updated_at:new Date(db.__updatedAt||Date.now()).toISOString()})});localStorage.removeItem(CLOUD_PENDING_KEY)}const time=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});cloudSetStatus('online','Đã đồng bộ lúc '+time)}catch(e){console.error(e);cloudSetStatus('error',e.message+' · dữ liệu vẫn giữ trên máy')}})();try{await cloudSyncPromise}finally{cloudSyncPromise=null}}
 function cloudInit(){try{cloudSession=JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY)||'null')}catch(e){}cloudUpdateUi();document.getElementById('cloudLoginBtn')?.addEventListener('click',()=>cloudAuthenticate('login'));document.getElementById('cloudSignupBtn')?.addEventListener('click',()=>cloudAuthenticate('signup'));document.getElementById('cloudLogoutBtn')?.addEventListener('click',()=>{cloudSaveSession(null);cloudSetStatus('offline','Đã đăng xuất · dữ liệu vẫn lưu trên thiết bị')});window.addEventListener('online',()=>cloudSync(false));window.addEventListener('offline',()=>cloudSetStatus('offline','Ngoại tuyến · thay đổi đang chờ đồng bộ'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')cloudSync(false)});setInterval(()=>{if(document.visibilityState==='visible')cloudSync(false)},15000);cloudSync(false)}
+function legacyRestoreInit(){document.getElementById('legacyRestoreFile')?.addEventListener('change',restoreLegacy)}
+window.addEventListener('DOMContentLoaded',legacyRestoreInit);
 window.addEventListener('DOMContentLoaded',cloudInit);
 
 </script>
