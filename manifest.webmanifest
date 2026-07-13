@@ -1,0 +1,11 @@
+{
+  "name": "Chấm công nhân viên",
+  "short_name": "Chấm công",
+  "description": "Chấm công tự lưu và đồng bộ giữa iPhone và PC.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#1769aa",
+  "lang": "vi"
+}
