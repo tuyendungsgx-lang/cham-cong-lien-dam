@@ -3,6 +3,7 @@
 ## 2026-07-15
 
 - Phiếu xin nghỉ phép: rút phần ý kiến của Trưởng bộ phận, Giám đốc ban và Phòng Nhân sự xuống còn đúng một dòng chấm cho mỗi mục.
+- Phiếu xin nghỉ phép: thu gọn khoảng cách giữa các dòng thông tin và dòng ý kiến, đồng thời tăng vùng trống ký tên dưới bốn chức danh.
 
 ## 2026-07-13
 
