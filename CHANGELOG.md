@@ -5,6 +5,8 @@
 - Bổ sung mục Nhân viên nghỉ việc trong Cài đặt với Họ tên, Vị trí và Ngày nghỉ việc.
 - Từ ngày nghỉ việc, nhân viên tự động được ẩn khỏi danh sách chấm công và tăng ca hằng ngày; dữ liệu lịch sử không bị xóa.
 - Tổng hợp tháng tự ghi chú “Nghỉ việc từ ngày …” và vẫn giữ nguyên ngày công, giờ công, tăng ca, nghỉ phép trước đó.
+- Chấm công hằng ngày: bổ sung nút Sửa cạnh Xóa cho từng dòng tăng ca; cho phép cập nhật nhân viên, ngày, khung giờ, thời gian trừ, lý do và ghi chú mà không tạo dòng trùng.
+- Tổng hợp tháng: chuyển mẫu in sang A4 khổ ngang, cân lại độ rộng các cột và nới cột Nghỉ/Công tác/Đào tạo cùng cột Ghi chú.
 
 ## 2026-07-15
 
