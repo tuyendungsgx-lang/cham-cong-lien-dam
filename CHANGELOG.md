@@ -1,5 +1,11 @@
 # Lịch sử cập nhật
 
+## 2026-07-17
+
+- Bổ sung mục Nhân viên nghỉ việc trong Cài đặt với Họ tên, Vị trí và Ngày nghỉ việc.
+- Từ ngày nghỉ việc, nhân viên tự động được ẩn khỏi danh sách chấm công và tăng ca hằng ngày; dữ liệu lịch sử không bị xóa.
+- Tổng hợp tháng tự ghi chú “Nghỉ việc từ ngày …” và vẫn giữ nguyên ngày công, giờ công, tăng ca, nghỉ phép trước đó.
+
 ## 2026-07-15
 
 - Phiếu xin nghỉ phép: rút phần ý kiến của Trưởng bộ phận, Giám đốc ban và Phòng Nhân sự xuống còn đúng một dòng chấm cho mỗi mục.
