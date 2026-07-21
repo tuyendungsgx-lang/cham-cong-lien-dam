@@ -2,6 +2,8 @@
 
 ## 2026-07-21
 
+- Đưa Bảng công tháng lên trên Bảng tổng hợp tháng trong tab Tổng hợp tháng.
+- Bổ sung nút mũi tên mở/thu gọn độc lập cho từng bảng; cả hai bảng mặc định thu gọn và chỉ hiện nội dung khi người dùng bấm mở.
 - Nhân viên đã có Ngày nghỉ việc không còn xuất hiện trong mục chọn nhanh nhân viên của Chấm công hằng ngày và Tăng ca, kể cả khi đang xem ngày chấm công cũ.
 - Nhân viên nghỉ việc được loại khỏi danh sách chọn khi in Phiếu xin nghỉ phép; nếu đang được chọn thì biểu mẫu tự động xóa lựa chọn đó.
 - Dữ liệu chấm công, tăng ca và nghỉ phép trước ngày nghỉ việc vẫn được giữ nguyên để tra cứu và tổng hợp lịch sử.
