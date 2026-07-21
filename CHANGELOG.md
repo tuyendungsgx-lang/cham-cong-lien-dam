@@ -5,6 +5,9 @@
 - Nhân viên đã có Ngày nghỉ việc không còn xuất hiện trong mục chọn nhanh nhân viên của Chấm công hằng ngày và Tăng ca, kể cả khi đang xem ngày chấm công cũ.
 - Nhân viên nghỉ việc được loại khỏi danh sách chọn khi in Phiếu xin nghỉ phép; nếu đang được chọn thì biểu mẫu tự động xóa lựa chọn đó.
 - Dữ liệu chấm công, tăng ca và nghỉ phép trước ngày nghỉ việc vẫn được giữ nguyên để tra cứu và tổng hợp lịch sử.
+- Bổ sung Bảng công tháng trong Tổng hợp tháng, hiển thị đầy đủ ngày và thứ theo tháng được chọn, lấy dữ liệu trực tiếp từ Chấm công hằng ngày.
+- Mỗi nhân viên có dòng Công thường và Tăng ca; riêng Lê Văn Quang chỉ có một dòng Tăng ca. Các cột Chủ nhật được tô nền xanh nhạt.
+- Bổ sung mã nghỉ trên bảng công, mẫu in A4 khổ ngang và khu vực ký Người lập bảng/Quản lý ở cuối bảng.
 
 ## 2026-07-17
 
