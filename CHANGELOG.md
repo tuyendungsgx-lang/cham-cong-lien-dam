@@ -1,5 +1,11 @@
 # Lịch sử cập nhật
 
+## 2026-07-21
+
+- Nhân viên đã có Ngày nghỉ việc không còn xuất hiện trong mục chọn nhanh nhân viên của Chấm công hằng ngày và Tăng ca, kể cả khi đang xem ngày chấm công cũ.
+- Nhân viên nghỉ việc được loại khỏi danh sách chọn khi in Phiếu xin nghỉ phép; nếu đang được chọn thì biểu mẫu tự động xóa lựa chọn đó.
+- Dữ liệu chấm công, tăng ca và nghỉ phép trước ngày nghỉ việc vẫn được giữ nguyên để tra cứu và tổng hợp lịch sử.
+
 ## 2026-07-17
 
 - Bổ sung mục Nhân viên nghỉ việc trong Cài đặt với Họ tên, Vị trí và Ngày nghỉ việc.
