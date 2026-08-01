@@ -1,5 +1,11 @@
 # Lịch sử cập nhật
 
+## 2026-08-01
+
+- Bảng công tháng: bổ sung lựa chọn xuất Excel hoặc PDF và nút Xuất file; Excel giữ đầy đủ ngày, dữ liệu chấm công/tăng ca và nền xanh nhạt của Chủ nhật.
+- Bảng tổng hợp tháng: bổ sung lựa chọn xuất Excel hoặc PDF và nút Xuất file; file Excel chỉ chứa bảng tổng hợp đang xem.
+- Khi chọn PDF, chương trình mở bản xem trước A4 ngang để người dùng lưu thành PDF hoặc in trên iPhone và PC.
+
 ## 2026-07-21
 
 - Đưa Bảng công tháng lên trên Bảng tổng hợp tháng trong tab Tổng hợp tháng.
