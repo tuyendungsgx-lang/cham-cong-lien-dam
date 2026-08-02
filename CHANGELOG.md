@@ -2,6 +2,7 @@
 
 ## 2026-08-02
 
+- Nhật ký/Dữ liệu: chuẩn hóa sáu nút thao tác cùng chiều rộng, chiều cao, cỡ chữ và đặt trên một hàng; màn hình nhỏ hỗ trợ vuốt ngang thay vì xuống dòng.
 - Nhật ký/Dữ liệu: thay bộ lọc khoảng ngày bằng lựa chọn năm và đủ 12 tháng trong năm.
 - Khi mở chương trình, bảng chi tiết chỉ hiển thị dữ liệu tháng hiện tại; dữ liệu tháng đã qua chỉ xuất hiện khi người dùng chọn đúng tháng.
 - Bổ sung trạng thái tháng và số dòng đang xem, nút Về tháng hiện tại; tìm kiếm và bản in Nhật ký/Dữ liệu dùng cùng tháng đã chọn.
