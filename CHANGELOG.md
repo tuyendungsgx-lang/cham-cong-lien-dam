@@ -1,5 +1,11 @@
 # Lịch sử cập nhật
 
+## 2026-08-02
+
+- Nhật ký/Dữ liệu: thay bộ lọc khoảng ngày bằng lựa chọn năm và đủ 12 tháng trong năm.
+- Khi mở chương trình, bảng chi tiết chỉ hiển thị dữ liệu tháng hiện tại; dữ liệu tháng đã qua chỉ xuất hiện khi người dùng chọn đúng tháng.
+- Bổ sung trạng thái tháng và số dòng đang xem, nút Về tháng hiện tại; tìm kiếm và bản in Nhật ký/Dữ liệu dùng cùng tháng đã chọn.
+
 ## 2026-08-01
 
 - Bảng công tháng: bổ sung lựa chọn xuất Excel hoặc PDF và nút Xuất file; Excel giữ đầy đủ ngày, dữ liệu chấm công/tăng ca và nền xanh nhạt của Chủ nhật.
