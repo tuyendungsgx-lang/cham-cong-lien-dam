@@ -5,6 +5,9 @@
 - Khắc phục lỗi không mở được bản in Phiếu OT riêng của Lê Văn Quang trên iPhone và một số cấu hình Chrome.
 - Cửa sổ in nay được mở ngay khi người dùng bấm In Phiếu OT, sau đó mới nạp mẫu và toàn bộ dữ liệu tăng ca của Lê Văn Quang trong tháng đã chọn.
 - Bổ sung thông báo hướng dẫn khi trình duyệt chặn cửa sổ bật lên; giữ nguyên luồng in Phiếu OT của các nhân viên khác.
+- Bổ sung nút “In Phiếu OT Lê Văn Quang” hoạt động độc lập, không cần tích chọn nhân viên trong danh sách theo ngày.
+- Phiếu riêng dùng tháng của ngày đang chọn, gom các khung giờ theo từng ngày và liệt kê đầy đủ ngày, giờ bắt đầu, giờ kết thúc cùng tổng giờ tăng ca theo mẫu Giấy đề nghị tăng ca chung.
+- Nút In Phiếu OT chung trở lại đúng chức năng in theo ngày/khung giờ đã tích, kể cả khi chọn Lê Văn Quang.
 
 ## 2026-08-02
 
