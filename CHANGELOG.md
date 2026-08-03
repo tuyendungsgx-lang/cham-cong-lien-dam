@@ -1,5 +1,11 @@
 # Lịch sử cập nhật
 
+## 2026-08-03
+
+- Khắc phục lỗi không mở được bản in Phiếu OT riêng của Lê Văn Quang trên iPhone và một số cấu hình Chrome.
+- Cửa sổ in nay được mở ngay khi người dùng bấm In Phiếu OT, sau đó mới nạp mẫu và toàn bộ dữ liệu tăng ca của Lê Văn Quang trong tháng đã chọn.
+- Bổ sung thông báo hướng dẫn khi trình duyệt chặn cửa sổ bật lên; giữ nguyên luồng in Phiếu OT của các nhân viên khác.
+
 ## 2026-08-02
 
 - Nhật ký/Dữ liệu: chuẩn hóa sáu nút thao tác cùng chiều rộng, chiều cao, cỡ chữ và đặt trên một hàng; màn hình nhỏ hỗ trợ vuốt ngang thay vì xuống dòng.
