@@ -6,6 +6,7 @@
 - Giữ “Kế hoạch tăng ca”, “Từ giờ” và “Đến giờ” trên một dòng để tiêu đề bảng cân đối hơn.
 - Đổi dòng tổng hợp tháng thành “Danh sách CB CNV đề nghị tăng ca: ....... CB CNV”.
 - Bổ sung tên Huỳnh Ngọc Giang dưới vị trí ký Giám đốc Ban SX; giữ tên Lê Văn Quang dưới Người đề nghị.
+- Phiếu OT riêng của Lê Văn Quang: để trống toàn bộ cột Tổng thời gian, chỉ điền Ngày tăng ca, Từ giờ và Đến giờ.
 
 ## 2026-08-03
 
