@@ -530,14 +530,8 @@ function countsAsMonthlyWorkRecord(r){if(!r||(r.leaves||[]).length>0||Number(r.w
 function isLeVanQuangName(s){return normalizeNameKey(s)==='le van quang'}
 function leVanQuangMonthlyOTRows(baseDate){
  const ym=String(baseDate||todayVN()).slice(0,7);
- const items=(db.ots||[]).filter(o=>isLeVanQuangName(o.name)&&String(o.date||'').startsWith(ym));
- const byDate={};
- items.forEach(o=>{const date=String(o.date||'');if(!byDate[date])byDate[date]=[];byDate[date].push(o)});
- return Object.keys(byDate).sort().map(date=>{
-  const dayItems=byDate[date].sort((a,b)=>String(a.from||'').localeCompare(String(b.from||''))||String(a.to||'').localeCompare(String(b.to||'')));
-  const first=dayItems[0]||{},employee=findEmployee(first.name)||{};
-  return{name:first.name||'Lê Văn Quang',empCode:employee.code||first.empCode||'',position:first.position||employee.position||'',date,from:[...new Set(dayItems.map(o=>o.from||'').filter(Boolean))].join('; '),to:[...new Set(dayItems.map(o=>o.to||'').filter(Boolean))].join('; '),hours:round(dayItems.reduce((sum,o)=>sum+Number(o.hours||0),0)),reason:[...new Set(dayItems.map(o=>otReasonOf(o)).filter(Boolean))].join('; ')};
- });
+ const items=(db.ots||[]).filter(o=>isLeVanQuangName(o.name)&&String(o.date||'').startsWith(ym)).sort((a,b)=>String(a.date||'').localeCompare(String(b.date||''))||String(a.from||'').localeCompare(String(b.from||''))||String(a.to||'').localeCompare(String(b.to||'')));
+ return items.map(o=>{const employee=findEmployee(o.name)||{};return{name:o.name||'Lê Văn Quang',empCode:employee.code||o.empCode||'',position:o.position||employee.position||'',date:String(o.date||''),from:o.from||'',to:o.to||'',hours:round(o.hours||0),reason:otReasonOf(o)}});
 }
 function printLeVanQuangOTSlip(baseDate,printWindow){
  const rows=leVanQuangMonthlyOTRows(baseDate);
