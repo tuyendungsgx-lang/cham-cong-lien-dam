@@ -1,5 +1,12 @@
 # Lịch sử cập nhật
 
+## 2026-08-05
+
+- Phiếu OT riêng của Lê Văn Quang: thu cột Ngày tăng ca từ 22% xuống 18% và nới mỗi cột giờ của Kế hoạch tăng ca từ 8% lên 10%.
+- Giữ “Kế hoạch tăng ca”, “Từ giờ” và “Đến giờ” trên một dòng để tiêu đề bảng cân đối hơn.
+- Đổi dòng tổng hợp tháng thành “Danh sách CB CNV đề nghị tăng ca: ....... CB CNV”.
+- Bổ sung tên Huỳnh Ngọc Giang dưới vị trí ký Giám đốc Ban SX; giữ tên Lê Văn Quang dưới Người đề nghị.
+
 ## 2026-08-03
 
 - Khắc phục lỗi không mở được bản in Phiếu OT riêng của Lê Văn Quang trên iPhone và một số cấu hình Chrome.
