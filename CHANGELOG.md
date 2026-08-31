@@ -4,6 +4,9 @@
 
 - Bảng chấm công tháng: chuyển khu vực ký Quản lý sang bên trái, giữ tên Lê Văn Quang dưới chức danh; chuyển Người lập bảng sang bên phải trên màn hình, bản in/PDF và file Excel.
 - Bảng tổng hợp chấm công: áp dụng cùng thứ tự ký Quản lý bên trái và Người lập bảng bên phải trên bản in/PDF và file Excel.
+- Phiếu xin nghỉ phép: bổ sung chọn tháng và danh sách các lần nghỉ của từng nhân viên; các ngày nghỉ liên tiếp được gom thành một lần, ngày nghỉ riêng được tính là một lần và sắp từ đầu tháng đến cuối tháng.
+- Khi chọn một lần nghỉ, chương trình tự điền Từ ngày, Đến ngày, tổng số ngày, lý do và loại nghỉ để in Phiếu.
+- Nhân viên đã nghỉ việc vẫn xuất hiện trong danh sách in Phiếu nếu có dữ liệu nghỉ trước ngày nghỉ việc; dữ liệu từ ngày nghỉ việc trở đi không được đưa vào danh sách in.
 
 ## 2026-08-05
 
