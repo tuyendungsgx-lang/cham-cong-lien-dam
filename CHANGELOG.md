@@ -1,5 +1,10 @@
 # Lịch sử cập nhật
 
+## 2026-08-31
+
+- Bảng chấm công tháng: chuyển khu vực ký Quản lý sang bên trái, giữ tên Lê Văn Quang dưới chức danh; chuyển Người lập bảng sang bên phải trên màn hình, bản in/PDF và file Excel.
+- Bảng tổng hợp chấm công: áp dụng cùng thứ tự ký Quản lý bên trái và Người lập bảng bên phải trên bản in/PDF và file Excel.
+
 ## 2026-08-05
 
 - Phiếu OT riêng của Lê Văn Quang: thu cột Ngày tăng ca từ 22% xuống 18% và nới mỗi cột giờ của Kế hoạch tăng ca từ 8% lên 10%.
