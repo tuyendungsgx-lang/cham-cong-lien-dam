@@ -2,6 +2,8 @@
 
 ## 2026-09-02
 
+- Bảng tổng hợp tháng: đổi tên cột “Giờ công” thành “Tổng giờ công” trên màn hình, bản in/PDF và file Excel.
+- Tổng giờ công nay được tính bằng giờ công thường cộng toàn bộ giờ tăng ca OT 150%, OT 200% và OT 300%; các cột OT riêng vẫn được giữ để đối chiếu.
 - Bảng tổng hợp tháng: Tổng ngày làm việc nay cộng cả ngày Chủ nhật và ngày lễ/Tết khi nhân viên có bản ghi chấm công làm việc hợp lệ.
 - Giữ nguyên cách tính giờ công thường và phân loại giờ tăng ca 200%/300%, tránh cộng trùng giờ OT vào giờ công thường.
 
