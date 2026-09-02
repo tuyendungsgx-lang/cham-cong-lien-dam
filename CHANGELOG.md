@@ -1,5 +1,10 @@
 # Lịch sử cập nhật
 
+## 2026-09-02
+
+- Bảng tổng hợp tháng: Tổng ngày làm việc nay cộng cả ngày Chủ nhật và ngày lễ/Tết khi nhân viên có bản ghi chấm công làm việc hợp lệ.
+- Giữ nguyên cách tính giờ công thường và phân loại giờ tăng ca 200%/300%, tránh cộng trùng giờ OT vào giờ công thường.
+
 ## 2026-08-31
 
 - Bảng chấm công tháng: chuyển khu vực ký Quản lý sang bên trái, giữ tên Lê Văn Quang dưới chức danh; chuyển Người lập bảng sang bên phải trên màn hình, bản in/PDF và file Excel.

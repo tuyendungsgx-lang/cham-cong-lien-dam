@@ -530,6 +530,7 @@ function selectedOTSlipNames(){return Array.from(document.querySelectorAll('#otS
 
 function normalizeNameKey(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/\s+/g,' ').trim()}
 function isSecurityPosition(pos){const p=normalizeNameKey(pos);return p==='bao ve'||p.includes('bao ve')}
+function countsAsMonthlyAttendanceDay(r){return !!r&&(r.leaves||[]).length===0&&Number(r.workDay||0)>0}
 function countsAsMonthlyWorkRecord(r){if(!r||(r.leaves||[]).length>0||Number(r.workDay||0)<=0)return false;const pos=r.position||findEmployee(r.name)?.position||'';return isSecurityPosition(pos)||(!isSunday(r.date)&&!holidayName(r.date))}
 function isLeVanQuangName(s){return normalizeNameKey(s)==='le van quang'}
 function leVanQuangMonthlyOTRows(baseDate){
@@ -669,11 +670,8 @@ function buildMonthlyReportRows(ym,q){
   (db.employees||[]).filter(e=>e.terminationDate&&e.terminationDate.startsWith(ym)).forEach(e=>ensure(e.name,e.position||'',e.code||''));
   db.records.filter(r=>r.date.startsWith(ym)).forEach(r=>{
     const x=ensure(r.name,r.position,findEmployee(r.name)?.code||r.empCode||'');
-    const hasLeave=(r.leaves||[]).length>0;
-    if(countsAsMonthlyWorkRecord(r)){
-      x.days+=Number(r.workDay||0);
-      x.hours+=Number(r.workHours||0);
-    }
+    if(countsAsMonthlyAttendanceDay(r))x.days+=Number(r.workDay||0);
+    if(countsAsMonthlyWorkRecord(r))x.hours+=Number(r.workHours||0);
     (r.leaves||[]).forEach(l=>x.leaves[l]=(x.leaves[l]||0)+1);
     if(r.note)x.notes.push(r.note);
   });
