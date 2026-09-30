@@ -3,6 +3,7 @@
 <!-- Served as a dedicated app asset so the hosting root stays lightweight. -->
 <head>
 <meta charset="UTF-8">
+<meta name="timekeeping-release" content="65.2026-09-30">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Chấm công">
@@ -45,6 +46,12 @@ main{max-width:1200px;margin:18px auto;padding:0 12px 80px}.grid{display:grid;gr
 .journal-month-status{margin:4px 0 10px;padding:9px 12px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#0f4c81;font-size:13px;font-weight:800}
 @media(max-width:820px){#data .table-wrap{max-height:62vh}.data-log-table{min-width:1220px}.data-log-table thead tr:nth-child(2) th{top:34px}}
 @media print{#data .table-wrap{max-height:none;overflow:visible}.data-log-table thead th{position:static;box-shadow:none}}
+
+/* Bảng theo dõi phép: giữ cố định hàng tiêu đề khi cuộn danh sách nhân viên */
+#leavePro .leave-pro-table-wrap{max-height:68vh;overflow:auto;position:relative}
+#leavePro .leave-pro-table-wrap thead th{position:sticky;top:0;z-index:4;background:#eef5fc;box-shadow:0 1px 0 var(--line)}
+@media(max-width:820px){#leavePro .leave-pro-table-wrap{max-height:60vh}}
+@media print{#leavePro .leave-pro-table-wrap{max-height:none;overflow:visible}#leavePro .leave-pro-table-wrap thead th{position:static;box-shadow:none}}
 
 
 /* Tối ưu vùng chọn nhân viên/khung giờ in phiếu OT */
@@ -127,7 +134,16 @@ main{max-width:1200px;margin:18px auto;padding:0 12px 80px}.grid{display:grid;gr
 
 </style>
 </head>
-<body>
+<body class="tk-locked">
+<style>
+body.tk-locked>header,body.tk-locked>main,body.tk-locked>#tkAccountBar,body.tk-locked>#tkConflict{display:none!important}
+#tkLogin{max-width:480px;margin:7vh auto;padding:28px;background:white;border:1px solid #d5e2f0;border-radius:20px;box-shadow:0 10px 40px #19466b18}
+#tkLogin h2{margin:0 0 12px;color:#14568b}#tkLogin label{display:block;margin:14px 0 6px}#tkLogin input{width:100%;font-size:18px;padding:12px;box-sizing:border-box}#tkLogin button{width:100%;margin-top:20px}#tkLoginMessage{font-size:15px;line-height:1.5;margin-top:16px}
+#tkAccountBar{padding:8px 16px;display:flex;align-items:center;justify-content:flex-end;gap:12px;background:#e8f2ff;font-size:15px}#tkAccountBar button{font-size:14px;padding:7px 12px}#tkConflict{padding:18px;background:#fff0c2;color:#6c4800}#tkConflict[hidden],#tkLogin[hidden],#tkLegacyBox[hidden]{display:none!important}@media print{#tkAccountBar,#tkConflict,#tkLogin{display:none!important}}
+</style>
+<section id="tkLogin"><h2>Đăng nhập Chấm công</h2><p>Dữ liệu chung được bảo vệ theo tài khoản.</p><form id="tkLoginForm"><label for="tkUsername">Tên tài khoản hoặc email</label><input id="tkUsername" autocomplete="username" required placeholder="Tài khoản được cấp"><label for="tkPassword">Mật khẩu</label><input id="tkPassword" type="password" autocomplete="current-password" required><button class="btn primary" id="tkLoginBtn" type="submit">Đăng nhập</button></form><div id="tkLoginMessage" role="status"></div></section>
+<div id="tkAccountBar"><span>Tài khoản: <b id="tkAccountName"></b></span><button class="btn" id="tkLogout">Đăng xuất</button></div>
+<div id="tkConflict" hidden><b>Có thay đổi trùng với một người khác.</b> Bản nháp của bạn vẫn được giữ, chưa ghi đè dữ liệu chung. <button class="btn" id="tkResolve">Lưu bản nháp và tải dữ liệu chung</button></div>
 <header><div class="header-wrap"><div><h1>CHƯƠNG TRÌNH CHẤM CÔNG NHÂN VIÊN</h1><div class="sub">Dùng chung trên iPhone & PC • Tự lưu • Tự đồng bộ khi có mạng</div></div><div><div class="clock" id="clock"></div><div class="sync-badge" id="cloudSyncStatus">Chưa đăng nhập đồng bộ</div></div></div></header>
 <main>
 <datalist id="timeOptions"></datalist>
@@ -240,7 +256,7 @@ main{max-width:1200px;margin:18px auto;padding:0 12px 80px}.grid{display:grid;gr
 <div class="field third"><label>Tìm nhân viên</label><input id="leaveSearch" placeholder="Mã NV, họ tên, vị trí"></div>
 <div class="field third"><label>&nbsp;</label><div class="actions"><button class="btn primary" id="saveLeaveSettingsBtn">Lưu định mức</button><button class="btn" id="printLeaveBtn">In bảng phép</button></div></div>
 </div>
-<div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>TT</th><th>Mã NV</th><th>Họ tên</th><th>Vị trí</th><th>Định mức phép</th><th>Đã nghỉ phép</th><th>Phép còn lại</th><th>Nghỉ khác/Công tác/Đào tạo</th><th>Ghi chú</th></tr></thead><tbody id="leaveProBody"></tbody></table></div>
+<div class="table-wrap leave-pro-table-wrap" style="margin-top:12px"><table><thead><tr><th>TT</th><th>Mã NV</th><th>Họ tên</th><th>Vị trí</th><th>Định mức phép</th><th>Đã nghỉ phép</th><th>Phép còn lại</th><th>Nghỉ khác/Công tác/Đào tạo</th><th>Ghi chú</th></tr></thead><tbody id="leaveProBody"></tbody></table></div>
 </div>
 <div class="card no-print"><h2>In Phiếu xin nghỉ phép</h2><p class="mini">Chọn nhân viên và tháng nghỉ; chương trình tự gom các ngày nghỉ liên tiếp thành từng lần để chọn in Phiếu.</p>
 <div class="row">
@@ -256,7 +272,8 @@ main{max-width:1200px;margin:18px auto;padding:0 12px 80px}.grid{display:grid;gr
 <div class="field full"><label>Bàn giao công việc cho</label><input id="leaveSlipHandover" placeholder="Nhập họ tên/người nhận bàn giao"></div>
 <div class="field full"><label>Loại nghỉ</label><div class="checks leave-slip-types"><div class="checkitem"><label><input type="radio" name="leaveSlipType" value="Phép năm" checked> Phép năm</label></div><div class="checkitem"><label><input type="radio" name="leaveSlipType" value="Nghỉ chế độ (hiếu, hỉ)"> Nghỉ chế độ (hiếu, hỉ)</label></div><div class="checkitem"><label><input type="radio" name="leaveSlipType" value="Nghỉ không lương"> Nghỉ không lương</label></div><div class="checkitem"><label><input type="radio" name="leaveSlipType" value="Thai sản"> Thai sản</label></div></div></div>
 </div>
-<div class="actions"><button class="btn primary" id="printLeaveSlipBtn">In Phiếu xin nghỉ phép</button><button class="btn" id="resetLeaveSlipBtn">Nhập mới</button></div>
+<div class="actions"><button class="btn primary" id="printLeaveSlipBtn">In Phiếu xin nghỉ phép</button><button class="btn ok" id="exportLeaveSlipWordBtn" type="button">Xuất Word</button><button class="btn" id="shareLeaveSlipWordBtn" type="button">Chia sẻ Word</button><button class="btn" id="resetLeaveSlipBtn">Nhập mới</button></div>
+<p class="mini no-print" style="margin:8px 0 0">Trên iPhone/điện thoại, nút Chia sẻ Word sẽ mở danh sách ứng dụng như Zalo, WhatsApp… nếu ứng dụng đã được cài.</p>
 </div>
 </section>
 
@@ -297,35 +314,36 @@ main{max-width:1200px;margin:18px auto;padding:0 12px 80px}.grid{display:grid;gr
 <div class="row"><div class="field third"><label>Ngày lễ</label><input type="date" id="customHolidayDate"></div><div class="field"><label>Tên ngày lễ</label><input id="customHolidayName" placeholder="VD: Tết Nguyên đán, Giỗ Tổ Hùng Vương"></div><div class="field third"><label>&nbsp;</label><button class="btn primary" id="addHolidayBtn">Thêm ngày lễ</button></div></div>
 <div class="table-wrap"><table><thead><tr><th>TT</th><th>Ngày</th><th>Tên ngày lễ</th><th></th></tr></thead><tbody id="holidayBody"></tbody></table></div></div>
 <div class="card"><h2>Danh mục vị trí</h2><div class="row"><div class="field"><label>Thêm vị trí</label><input id="newPosition" placeholder="Nhập vị trí mới"></div><div class="field third"><label>&nbsp;</label><button class="btn primary" id="addPositionBtn">Thêm</button></div></div><div id="positionTags"></div></div>
-<div class="card"><h2>Đồng bộ iPhone và PC</h2><p class="mini">Đăng nhập cùng một tài khoản trên các thiết bị. Dữ liệu được tự lưu trên máy, tự đưa lên đám mây khi có mạng và tự tải thay đổi mới nhất.</p><div class="row"><div class="field"><label>Email đồng bộ</label><input id="cloudEmail" type="email" autocomplete="username" placeholder="ten@congty.vn"></div><div class="field"><label>Mật khẩu (ít nhất 6 ký tự)</label><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="••••••••"></div></div><div class="actions"><button class="btn primary" id="cloudLoginBtn">Đăng nhập</button><button class="btn" id="cloudSignupBtn">Tạo tài khoản</button><button class="btn ok" id="forceSyncBtn">Đồng bộ ngay</button><button class="btn danger hide" id="cloudLogoutBtn">Đăng xuất</button><button class="btn warn" id="installHelpBtn">Cài trên iPhone/PC</button></div><div class="footer-note" id="cloudAccountDetail">Chưa đăng nhập. Dữ liệu vẫn đang được lưu an toàn trên thiết bị này.</div></div><div class="card"><h2>Lưu trữ và dự phòng</h2><div class="kpis"><div class="kpi"><b id="storageMode">Đang kiểm tra</b><span>Chế độ lưu trữ</span></div><div class="kpi"><b id="storageRecords">0</b><span>Dòng chấm công</span></div><div class="kpi"><b id="storageEmployees">0</b><span>Nhân viên đã lưu</span></div></div><div class="footer-note" id="storageDetail">Chương trình tự động lưu mỗi thay đổi. Chức năng Sao lưu/Khôi phục JSON vẫn được giữ để dự phòng.</div></div>
+<div class="card"><h2>Đồng bộ iPhone và PC</h2><p class="mini">Mỗi người dùng tài khoản riêng. Thay đổi được lưu chung trong phạm vi được cấp quyền, tự cập nhật mỗi 15 giây khi có mạng. Khi mở lại cần có mạng để xác thực.</p><div class="actions"><button class="btn ok" id="forceSyncBtn">Đồng bộ ngay</button><button class="btn danger" id="cloudLogoutBtn">Đăng xuất</button><button class="btn warn" id="installHelpBtn">Cài trên iPhone/PC</button></div><div id="cloudAccountDetail"></div><div id="tkLegacyBox" hidden><p>Bản cũ trên thiết bị được giữ nguyên, không tự ghi đè dữ liệu chung. Có thể tải ra JSON để đối chiếu.</p><button class="btn" id="tkLegacyExport">Tải bản dữ liệu cũ trên máy</button></div></div><div class="card"><h2>Lưu trữ và dự phòng</h2><div class="kpis"><div class="kpi"><b id="storageMode">Đang kiểm tra</b><span>Chế độ lưu trữ</span></div><div class="kpi"><b id="storageRecords">0</b><span>Dòng chấm công</span></div><div class="kpi"><b id="storageEmployees">0</b><span>Nhân viên đã lưu</span></div></div><div class="footer-note" id="storageDetail">Chương trình tự động lưu mỗi thay đổi. Chức năng Sao lưu/Khôi phục JSON vẫn được giữ để dự phòng.</div></div>
 </section>
 </main>
 
 <script>
-const KEY='VN_TIMEKEEPING_APP_V2';
+let KEY='VN_TIMEKEEPING_APP_V2';
 const CLOUD_SESSION_KEY='VN_TIMEKEEPING_SUPABASE_SESSION_V1';
 const CLOUD_PENDING_KEY='VN_TIMEKEEPING_CLOUD_PENDING_V1';
 const SUPABASE_URL='https://zaocouxrfjyljpofzsau.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_GDjiQW0YvOA82_xivi6QAA_MctVduYc';
 let cloudSession=null,cloudSyncPromise=null,cloudSaveTimer=null;
-const OLD_KEY='VN_TIMEKEEPING_APP_V1';
-const DRAFT_KEY='VN_TIMEKEEPING_DAILY_DRAFT_V1';
-const IDB_NAME='VN_TIMEKEEPING_INDEXEDDB_V2';
+let OLD_KEY='VN_TIMEKEEPING_APP_V1';
+let DRAFT_KEY='VN_TIMEKEEPING_DAILY_DRAFT_V1';
+let IDB_NAME='VN_TIMEKEEPING_INDEXEDDB_V2';
 const IDB_STORE='appdata';
 const defaultPositions=['QLNM','NV Bảo trì','NV Lái xe CG','Công nhân TSC','Bảo vệ','NV KTVH'];
 const preferredPositionOrder=['QLNM','NV Bảo trì','NV Lái xe CG','Công nhân TSC','Bảo vệ'];
+const priorityEmployeeOrder=['le van quang','truong vinh tien hoa'];
 const leaveTypes=['Nghỉ lễ','Nghỉ phép','Nghỉ bù','Nghỉ du lịch','Nghỉ chế độ','Đi công tác','Nghỉ không lương','Nghỉ thai sản','Nghỉ TNLĐ','Đi đào tạo','Nghỉ khác'];
-let db=loadDB();let editId=null;let editOtId=null;let idbOK=false;
+let db=emptyDB();let editId=null;let editOtId=null;let idbOK=false;
 function emptyDB(){return{employees:[],positions:[...defaultPositions],records:[],ots:[],holidays:[],__updatedAt:Date.now(),__version:'4.1-offline-professional'}}
 function normalizeDB(d){d=d||emptyDB();d.employees=(d.employees||[]).map(e=>typeof e==='string'?{name:e,position:'',startDate:'',terminationDate:''}:{name:e.name||'',code:e.code||e.empCode||'',position:e.position||'',startDate:e.startDate||'',terminationDate:e.terminationDate||e.endDate||e.quitDate||''}).filter(e=>e.name);d.positions=[...new Set([...(d.positions||[]),...defaultPositions])];d.records=d.records||[];d.ots=d.ots||[];d.holidays=d.holidays||[];d.__updatedAt=d.__updatedAt||0;d.__version='4.1-offline-professional';return d}
 function loadDB(){try{let raw=localStorage.getItem(KEY)||localStorage.getItem(OLD_KEY);if(raw){return normalizeDB(JSON.parse(raw))}}catch(e){}return emptyDB()}
-function saveDB(){db=normalizeDB(db);db.__updatedAt=Date.now();try{localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(OLD_KEY,JSON.stringify(db));localStorage.setItem(CLOUD_PENDING_KEY,'1')}catch(e){alert('Trình duyệt đang chặn lưu dữ liệu. Trên iPhone, vui lòng mở bằng Safari/Chrome bình thường, không dùng chế độ riêng tư.')}persistIndexedDB(db);setSaveStatus(idbOK?'Đã tự lưu trên thiết bị.':'Đã lưu bản dự phòng trên thiết bị.');renderStorageInfo();scheduleCloudSync()}
+
 function openIDB(){return new Promise((resolve,reject)=>{if(!('indexedDB' in window)){reject(new Error('Không hỗ trợ IndexedDB'));return}const req=indexedDB.open(IDB_NAME,1);req.onupgradeneeded=()=>{const database=req.result;if(!database.objectStoreNames.contains(IDB_STORE))database.createObjectStore(IDB_STORE)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
 async function idbGet(key){const database=await openIDB();return new Promise((resolve,reject)=>{const tx=database.transaction(IDB_STORE,'readonly');const req=tx.objectStore(IDB_STORE).get(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
 async function idbSet(key,value){const database=await openIDB();return new Promise((resolve,reject)=>{const tx=database.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(value,key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}
 async function idbDelete(key){try{const database=await openIDB();return new Promise((resolve,reject)=>{const tx=database.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).delete(key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)})}catch(e){}}
-function persistIndexedDB(data){idbSet('main',normalizeDB(JSON.parse(JSON.stringify(data)))).then(()=>{idbOK=true;renderStorageInfo()}).catch(()=>{idbOK=false;renderStorageInfo()})}
-async function hydrateFromIndexedDB(){try{const stored=await idbGet('main');idbOK=true;if(stored){const nd=normalizeDB(stored);const currentTs=db.__updatedAt||0;const idbTs=nd.__updatedAt||0;if(idbTs>currentTs||((db.records||[]).length===0&&(nd.records||[]).length>0)){db=nd;try{localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(OLD_KEY,JSON.stringify(db))}catch(e){}refreshAll();setSaveStatus('Đã tải dữ liệu từ IndexedDB trên thiết bị.')}}else{persistIndexedDB(db)}renderStorageInfo()}catch(e){idbOK=false;setSaveStatus('IndexedDB chưa khả dụng. Chương trình đang dùng bộ nhớ dự phòng LocalStorage.');renderStorageInfo()}}
+
+
 function renderStorageInfo(){setTimeout(()=>{const m=document.getElementById('storageMode'),r=document.getElementById('storageRecords'),e=document.getElementById('storageEmployees'),d=document.getElementById('storageDetail');if(m)m.textContent=idbOK?'IndexedDB V2':'LocalStorage dự phòng';if(r)r.textContent=(db.records||[]).length;if(e)e.textContent=(db.employees||[]).length;if(d)d.textContent='Cập nhật gần nhất: '+new Date(db.__updatedAt||Date.now()).toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh',hour12:false})},0)}
 function initManifest(){try{const manifest={name:'Chấm công nhân viên',short_name:'Chấm công',start_url:location.href,display:'standalone',background_color:'#f4f7fb',theme_color:'#1769aa',lang:'vi-VN',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='38' fill='%231769aa'/%3E%3Ctext x='96' y='118' font-size='80' text-anchor='middle' fill='white'%3ECC%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'}]};const link=document.createElement('link');link.rel='manifest';link.href='data:application/manifest+json,'+encodeURIComponent(JSON.stringify(manifest));document.head.appendChild(link)}catch(e){}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
@@ -365,14 +383,14 @@ function renderLeaveChecks(){document.getElementById('leaveChecks').innerHTML=le
 
 
 function collectDailyDraft(){return{workDate:val('workDate'),empName:val('empName'),position:val('position'),timeIn:val('timeIn'),timeOut:val('timeOut'),leaveFrom:val('leaveFrom'),leaveTo:val('leaveTo'),note:val('note'),dailyIsOT:document.getElementById('dailyIsOT')?.checked||false,dailyOtReasonInput:val('dailyOtReasonInput'),leaves:leaveTypes.map((t,i)=>document.getElementById('leave_'+i)?.checked||false),otName:val('otName'),otFrom:val('otFrom'),otTo:val('otTo'),otBreakFrom:val('otBreakFrom'),otBreakTo:val('otBreakTo'),otHasBreak:document.getElementById('otHasBreak')?.checked||false,otReason:val('otReason'),otNote:val('otNote'),ts:Date.now()}}
-function saveDailyDraft(){try{localStorage.setItem(DRAFT_KEY,JSON.stringify(collectDailyDraft()));setSaveStatus('Đã tự lưu nháp trên thiết bị. Khi hoàn tất, bấm Lưu chấm công để ghi vào nhật ký.')}catch(e){}}
+function saveDailyDraft(){if(!tkReady)return;try{localStorage.setItem(DRAFT_KEY,JSON.stringify(collectDailyDraft()));setSaveStatus('Đã tự lưu nháp trên thiết bị. Khi hoàn tất, bấm Lưu chấm công để ghi vào nhật ký.')}catch(e){}}
 function restoreDailyDraft(){try{const raw=localStorage.getItem(DRAFT_KEY);if(!raw)return;const d=JSON.parse(raw);if(!d||!d.ts)return; if(Date.now()-d.ts>1000*60*60*24*7)return;['workDate','empName','position','timeIn','timeOut','leaveFrom','leaveTo','note','dailyOtReasonInput','otName','otFrom','otTo','otBreakFrom','otBreakTo','otReason','otNote'].forEach(id=>{if(d[id]!==undefined&&document.getElementById(id))setVal(id,d[id])});(d.leaves||[]).forEach((v,i)=>{const el=document.getElementById('leave_'+i);if(el)el.checked=!!v});syncLeavePanel((d.leaves||[]).some(Boolean));if(document.getElementById('dailyIsOT')){document.getElementById('dailyIsOT').checked=!!d.dailyIsOT;document.getElementById('dailyOtReasonPanel')?.classList.toggle('show',!!d.dailyIsOT);}if(document.getElementById('otHasBreak')){document.getElementById('otHasBreak').checked=!!d.otHasBreak;document.getElementById('otBreakPanel')?.classList.toggle('show',!!d.otHasBreak)}setSaveStatus('Đã khôi phục phiếu nhập nháp trên thiết bị.')}catch(e){}}
 function clearDailyDraft(){try{localStorage.removeItem(DRAFT_KEY)}catch(e){}}
 function bindAutoDraft(){['workDate','empName','position','timeIn','timeOut','leaveFrom','leaveTo','note','dailyIsOT','dailyOtReasonInput','otName','otFrom','otTo','otBreakFrom','otBreakTo','otReason','otNote'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',saveDailyDraft);el.addEventListener('change',saveDailyDraft)}});leaveTypes.forEach((t,i)=>{const el=document.getElementById('leave_'+i);if(el)el.addEventListener('change',()=>{const has=selectedLeaves().length>0; if(document.getElementById('showLeavePanel'))document.getElementById('showLeavePanel').checked=has||document.getElementById('showLeavePanel').checked; if(has)document.getElementById('leaveQuickPanel')?.classList.add('show'); saveDailyDraft();})});window.addEventListener('pagehide',()=>{try{saveDailyDraft();saveDB()}catch(e){}});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){try{saveDailyDraft();saveDB()}catch(e){}}})}
 
 function initTimeOptions(){const dl=document.getElementById('timeOptions');if(!dl)return;let html='';for(let h=0;h<24;h++){for(let m of [0,15,30,45]){const v=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');html+=`<option value="${v}"></option>`}}dl.innerHTML=html;document.querySelectorAll('.time24').forEach(inp=>{inp.addEventListener('input',()=>{let x=inp.value.replace(/[^0-9:]/g,'');if(/^\d{3,4}$/.test(x))x=x.slice(0,-2)+':'+x.slice(-2);inp.value=x.slice(0,5)});inp.addEventListener('blur',()=>{const n=normalizeTime(inp.value);if(n)inp.value=n;refreshCalc&&refreshCalc()})})}
 function bind(){document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab,.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById(b.dataset.tab).classList.add('active');refreshAll()});['workDate','timeIn','timeOut','leaveFrom','leaveTo'].forEach(id=>document.getElementById(id).oninput=()=>{refreshCalc();if(id==='workDate'){renderEmployeePicker();renderKPIs();renderOTToday()}});['otFrom','otTo','otBreakFrom','otBreakTo','workDate'].forEach(id=>{const el=document.getElementById(id); if(el)el.addEventListener('input',()=>{setVal('otBreakHours',calcOtBreakHours());setVal('otHours',calcOtHours())})});if(document.getElementById('showEmployeePicker'))document.getElementById('showEmployeePicker').onchange=e=>{document.getElementById('employeeQuickPanel')?.classList.toggle('show',e.target.checked); if(e.target.checked)renderEmployeePicker();};if(document.getElementById('showLeavePanel'))document.getElementById('showLeavePanel').onchange=e=>{document.getElementById('leaveQuickPanel')?.classList.toggle('show',e.target.checked); if(!e.target.checked){leaveTypes.forEach((t,i)=>{const el=document.getElementById('leave_'+i); if(el)el.checked=false;}); setVal('leaveFrom',''); setVal('leaveTo',''); setVal('leaveHours',''); refreshCalc(); saveDailyDraft();}};if(document.getElementById('showOtEmployeePicker'))document.getElementById('showOtEmployeePicker').onchange=e=>{document.getElementById('otEmployeeQuickPanel')?.classList.toggle('show',e.target.checked); if(e.target.checked)renderOTEmployeePicker();};if(document.getElementById('otHasBreak'))document.getElementById('otHasBreak').onchange=e=>{document.getElementById('otBreakPanel')?.classList.toggle('show',e.target.checked);setVal('otBreakHours',calcOtBreakHours());setVal('otHours',calcOtHours())};if(document.getElementById('dailyIsOT'))document.getElementById('dailyIsOT').onchange=e=>{document.getElementById('dailyOtReasonPanel')?.classList.toggle('show',e.target.checked);if(!e.target.checked)setVal('dailyOtReasonInput','');saveDailyDraft()};document.getElementById('saveBtn').onclick=saveRecord;document.getElementById('resetBtn').onclick=resetForm;document.getElementById('fillTodayBtn').onclick=()=>{setVal('workDate',todayVN());refreshAll()};document.getElementById('addOtBtn').onclick=addOT;document.getElementById('summaryExportBtn').onclick=exportSelectedMonthlySummary;document.getElementById('reportMonth').oninput=renderReport;document.getElementById('reportSearch').oninput=renderReport;document.getElementById('dataSearch').oninput=renderData;document.getElementById('quickDataDate').oninput=()=>{renderDataQuickStats();renderOTSlipEmployees()};document.getElementById('filterFrom').oninput=renderData;document.getElementById('filterTo').oninput=renderData;document.getElementById('clearFilterBtn').onclick=()=>{setVal('filterFrom','');setVal('filterTo','');setVal('dataSearch','');renderData();renderDataQuickStats()};document.getElementById('backupBtn').onclick=backup;document.getElementById('restoreFile').onchange=restore;document.getElementById('deleteAllBtn').onclick=deleteAll;document.getElementById('addHolidayBtn').onclick=addHoliday;document.getElementById('addPositionBtn').onclick=addPosition;document.getElementById('addEmployeeBtn').onclick=addEmployeeFromSettings;document.getElementById('empQuickSearch').oninput=renderEmployeePicker;document.getElementById('selectVisibleEmpBtn').onclick=()=>{document.querySelectorAll('#employeePicker input[type=checkbox]').forEach(x=>x.checked=true);updatePickedEmployees()};document.getElementById('clearEmpPickBtn').onclick=()=>{document.querySelectorAll('#employeePicker input[type=checkbox]').forEach(x=>x.checked=false);updatePickedEmployees()};document.getElementById('empName').addEventListener('blur',autoFillPositionByName);document.getElementById('otQuickSearch').oninput=renderOTEmployeePicker;document.getElementById('selectVisibleOtBtn').onclick=()=>{document.querySelectorAll('#otEmployeePicker input[type=checkbox]').forEach(x=>x.checked=true);updatePickedOTEmployees()};document.getElementById('clearOtPickBtn').onclick=()=>{document.querySelectorAll('#otEmployeePicker input[type=checkbox]').forEach(x=>x.checked=false);updatePickedOTEmployees()};document.getElementById('printReportBtn').onclick=()=>printTable('report');document.getElementById('printDataBtn').onclick=()=>printTable('data');if(document.getElementById('otSlipDate')){document.getElementById('otSlipDate').value=todayVN();document.getElementById('otSlipDate').oninput=renderOTSlipEmployees;}if(document.getElementById('printOtSlipBtn'))document.getElementById('printOtSlipBtn').onclick=printOTSlip;if(document.getElementById('printLeVanQuangOtSlipBtn'))document.getElementById('printLeVanQuangOtSlipBtn').onclick=printLeVanQuangMonthlyOTSlip;if(document.getElementById('forceSyncBtn'))document.getElementById('forceSyncBtn').onclick=()=>cloudSync(true);if(document.getElementById('installHelpBtn'))document.getElementById('installHelpBtn').onclick=()=>alert('iPhone: mở địa chỉ chương trình bằng Safari, bấm Chia sẻ → Thêm vào Màn hình chính. PC: mở bằng Chrome/Edge, chọn Cài đặt ứng dụng. Hãy đăng nhập cùng một tài khoản trên mọi thiết bị để tự đồng bộ.');makeSuggest('empName','empSuggest');makeSuggest('otName','otSuggest');bindAutoDraft()}
-function makeSuggest(inputId,listId){const inp=document.getElementById(inputId),box=document.getElementById(listId);inp.oninput=()=>{const q=inp.value.toLowerCase().trim();const arr=currentEmployees().filter(e=>e.name.toLowerCase().includes(q)).slice(0,8);box.innerHTML=arr.map(e=>`<div data-name="${esc(e.name)}" data-pos="${esc(e.position||'')}">${esc(e.name)} <span class="mini">${esc(e.position||'')}</span></div>`).join('');box.style.display=arr.length?'block':'none';box.querySelectorAll('div').forEach(d=>d.onclick=()=>{inp.value=d.dataset.name;if(inputId==='empName')selectEmployee(d.dataset.name);box.style.display='none'})};document.addEventListener('click',e=>{if(!box.contains(e.target)&&e.target!==inp)box.style.display='none'})}
+function makeSuggest(inputId,listId){const inp=document.getElementById(inputId),box=document.getElementById(listId);inp.oninput=()=>{const q=inp.value.toLowerCase().trim();const arr=sortEmployeesByPosition(currentEmployees()).filter(e=>e.name.toLowerCase().includes(q)).slice(0,8);box.innerHTML=arr.map(e=>`<div data-name="${esc(e.name)}" data-pos="${esc(e.position||'')}">${esc(e.name)} <span class="mini">${esc(e.position||'')}</span></div>`).join('');box.style.display=arr.length?'block':'none';box.querySelectorAll('div').forEach(d=>d.onclick=()=>{inp.value=d.dataset.name;if(inputId==='empName')selectEmployee(d.dataset.name);box.style.display='none'})};document.addEventListener('click',e=>{if(!box.contains(e.target)&&e.target!==inp)box.style.display='none'})}
 
 function findEmployee(name){return db.employees.find(e=>e.name.toLowerCase().trim()===String(name||'').toLowerCase().trim())}
 function isEmployeeActiveOnDate(emp,date){if(!emp||!emp.terminationDate)return true;date=String(date||todayVN()).slice(0,10);return !!date&&date<emp.terminationDate}
@@ -381,7 +399,8 @@ function isCurrentEmployee(emp){return !!emp&&!String(emp.terminationDate||'').t
 function currentEmployees(){return (db.employees||[]).filter(isCurrentEmployee)}
 function terminationNoteFor(emp,ym){const date=String(emp?.terminationDate||'');return date&&ym&&date.slice(0,7)<=ym?'Nghỉ việc từ ngày '+fmtVN(date):''}
 function positionRank(pos){const i=preferredPositionOrder.indexOf(String(pos||'').trim());return i>=0?i:preferredPositionOrder.length}
-function comparePositionName(a,b){const ra=positionRank(a.position),rb=positionRank(b.position);if(ra!==rb)return ra-rb;return String(a.position||'').localeCompare(String(b.position||''),'vi')||String(a.name||'').localeCompare(String(b.name||''),'vi')}
+function employeePriorityRank(name){const key=String(name||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/\s+/g,' ').trim();return priorityEmployeeOrder.indexOf(key)}
+function comparePositionName(a,b){const pa=employeePriorityRank(a?.name),pb=employeePriorityRank(b?.name);if(pa!==pb){if(pa>=0&&pb>=0)return pa-pb;return pa>=0?-1:1}const ra=positionRank(a.position),rb=positionRank(b.position);if(ra!==rb)return ra-rb;return String(a.position||'').localeCompare(String(b.position||''),'vi')||String(a.name||'').localeCompare(String(b.name||'') ,'vi')}
 function sortEmployeesByPosition(arr){return [...arr].sort(comparePositionName)}
 function compareRecordPositionName(a,b){return comparePositionName({name:a.name,position:a.position},{name:b.name,position:b.position})}
 function selectedEmployeeNames(){return Array.from(document.querySelectorAll('#employeePicker input[type=checkbox]:checked')).map(x=>x.dataset.name)}
@@ -723,9 +742,9 @@ function buildMonthlyTimesheetTable(ym){
  return`<table class="monthly-timesheet-table"><colgroup><col class="ts-stt"><col class="ts-code"><col class="ts-name"><col class="ts-pos"><col class="ts-type">${dayCols}</colgroup><thead><tr><th rowspan="2">STT</th><th rowspan="2">Mã NV</th><th rowspan="2">Họ tên</th><th rowspan="2">Vị trí</th><th rowspan="2">Loại công</th><th class="ts-month-span" colspan="${model.dayCount}">Ngày trong tháng · Tháng ${String(model.month).padStart(2,'0')} · Năm ${model.year}</th></tr><tr>${dayHeaders}</tr></thead>${groups||`<tbody><tr><td class="monthly-timesheet-empty" colspan="${model.dayCount+5}">Chưa có nhân viên hoặc dữ liệu trong tháng.</td></tr></tbody>`}</table>`
 }
 function monthlyTimesheetHeading(ym){const [year,month]=ym.split('-');return`<div class="monthly-timesheet-head"><div class="company">CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH</div><div class="plant">NHÀ MÁY XLCTR LIÊN ĐẦM</div><h3>BẢNG CHẤM CÔNG</h3><div class="month-label">Tháng ${month} &nbsp;&nbsp; Năm ${year}</div></div>`}
-function renderMonthlyTimesheet(){const root=document.getElementById('monthlyTimesheetPreview');if(!root)return;const ym=timesheetMonthValue();root.innerHTML=monthlyTimesheetHeading(ym)+`<div class="monthly-timesheet-wrap">${buildMonthlyTimesheetTable(ym)}</div><div class="monthly-timesheet-legend">Ký hiệu nghỉ: P = Nghỉ phép; K = Nghỉ không lương; CT = Công tác; ĐT = Đào tạo; TS = Thai sản; CĐ = Nghỉ chế độ. Cột Chủ nhật có nền xanh nhạt.</div><div class="monthly-timesheet-screen-signs"><div>Quản lý<span class="sign-name">Lê Văn Quang</span></div><div>Người lập bảng</div></div>`}
+function renderMonthlyTimesheet(){const root=document.getElementById('monthlyTimesheetPreview');if(!root)return;const ym=timesheetMonthValue();root.innerHTML=monthlyTimesheetHeading(ym)+`<div class="monthly-timesheet-wrap">${buildMonthlyTimesheetTable(ym)}</div><div class="monthly-timesheet-legend">Ký hiệu nghỉ: P = Nghỉ phép; K = Nghỉ không lương; CT = Công tác; ĐT = Đào tạo; TS = Thai sản; CĐ = Nghỉ chế độ. Cột Chủ nhật có nền xanh nhạt.</div><div class="monthly-timesheet-screen-signs"><div>Quản lý<span class="sign-name">${managerSignature()}</span></div><div>Người lập bảng</div></div>`}
 function monthlyTimesheetPrintCss(){return`@page{size:A4 landscape;margin:5mm 4mm 5mm 4mm}*{box-sizing:border-box}html,body{margin:0;padding:0;color:#000;background:#fff;font-family:"Times New Roman",Times,serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.monthly-timesheet-head{text-align:center;margin:0 0 3mm}.monthly-timesheet-head .company{font-size:11pt;font-weight:bold;text-transform:uppercase}.monthly-timesheet-head .plant{display:inline-block;font-size:10pt;font-weight:bold;text-transform:uppercase;text-decoration:underline;text-underline-offset:2px}.monthly-timesheet-head h3{font-size:12pt;margin:2mm 0 1mm}.monthly-timesheet-head .month-label{font-size:9pt}.monthly-timesheet-table{width:100%;min-width:0!important;table-layout:fixed;border-collapse:collapse}.monthly-timesheet-table col.ts-stt{width:7mm}.monthly-timesheet-table col.ts-code{width:13mm}.monthly-timesheet-table col.ts-name{width:30mm}.monthly-timesheet-table col.ts-pos{width:18mm}.monthly-timesheet-table col.ts-type{width:18mm}.monthly-timesheet-table col.ts-day{width:6.2mm}.monthly-timesheet-table th,.monthly-timesheet-table td{border:.25mm solid #000;padding:.7mm .25mm;font-size:6.2pt;line-height:1.05;vertical-align:middle}.monthly-timesheet-table th{background:#8be58b;text-align:center;font-weight:bold}.monthly-timesheet-table th.ts-month-span{font-size:7.2pt}.monthly-timesheet-table .day-head span{display:block;font-size:6.2pt}.monthly-timesheet-table .day-head small{display:block;font-size:5.4pt}.monthly-timesheet-table td.ts-fixed{font-size:6.5pt}.monthly-timesheet-table td.ts-no,.monthly-timesheet-table td.ts-code-cell,.monthly-timesheet-table td.ts-value{text-align:center}.monthly-timesheet-table .sunday{background:#c6e8f1!important}.monthly-timesheet-table .ts-ot-label{font-weight:bold}thead{display:table-header-group}.timesheet-employee{break-inside:avoid;page-break-inside:avoid}.timesheet-signs{display:grid;grid-template-columns:1fr 1fr;gap:30mm;margin-top:7mm;text-align:center;font-size:10pt;font-weight:bold;break-inside:avoid;page-break-inside:avoid}.timesheet-sign-box{min-height:28mm}.timesheet-sign-name{margin-top:16mm}`}
-function printMonthlyTimesheet(){const ym=timesheetMonthValue(),popup=window.open('','_blank');if(!popup){alert('Trình duyệt đang chặn cửa sổ in. Vui lòng cho phép pop-up.');return}popup.document.open();popup.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bảng chấm công ${ym}</title><style>${monthlyTimesheetPrintCss()}</style></head><body>${monthlyTimesheetHeading(ym)}${buildMonthlyTimesheetTable(ym)}<div class="timesheet-signs"><div class="timesheet-sign-box">Quản lý<div class="timesheet-sign-name">Lê Văn Quang</div></div><div class="timesheet-sign-box">Người lập bảng</div></div><script>window.onload=()=>setTimeout(()=>window.print(),150);window.onafterprint=()=>setTimeout(()=>window.close(),150)<\/script></body></html>`);popup.document.close();addAudit('In Bảng chấm công',ym,'Bảng công chi tiết theo ngày');saveDB()}
+function printMonthlyTimesheet(){const ym=timesheetMonthValue(),popup=window.open('','_blank');if(!popup){alert('Trình duyệt đang chặn cửa sổ in. Vui lòng cho phép pop-up.');return}popup.document.open();popup.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bảng chấm công ${ym}</title><style>${monthlyTimesheetPrintCss()}</style></head><body>${monthlyTimesheetHeading(ym)}${buildMonthlyTimesheetTable(ym)}<div class="timesheet-signs"><div class="timesheet-sign-box">Quản lý<div class="timesheet-sign-name">${managerSignature()}</div></div><div class="timesheet-sign-box">Người lập bảng</div></div><script>window.onload=()=>setTimeout(()=>window.print(),150);window.onafterprint=()=>setTimeout(()=>window.close(),150)<\/script></body></html>`);popup.document.close();addAudit('In Bảng chấm công',ym,'Bảng công chi tiết theo ngày');saveDB()}
 function renderHolidays(){document.getElementById('holidayBody').innerHTML=db.holidays.sort((a,b)=>a.date.localeCompare(b.date)).map((h,i)=>`<tr><td>${i+1}</td><td>${fmtVN(h.date)}</td><td>${esc(h.name)}</td><td><button class="btn danger" onclick="delHoliday('${h.date}','${escAttr(h.name)}')">Xóa</button></td></tr>`).join('')||'<tr><td colspan="4" class="mini">Chưa khai báo ngày lễ tùy chỉnh.</td></tr>'}
 function refreshAll(){refreshCalc();renderPositions();renderEmployeePicker();renderOTEmployeePicker();renderEmployeeSettings();renderTerminationSettings();renderKPIs();renderOTToday();renderDataQuickStats();renderDataYearOptions();renderData();renderReport();renderMonthlyTimesheet();renderHolidays();renderOTSlipEmployees()}
 function editRec(id){const r=db.records.find(x=>x.id===id);if(!r)return;editId=id;setVal('workDate',r.date);setVal('empName',r.name);setVal('position',r.position);setVal('timeIn',r.timeIn);setVal('timeOut',r.timeOut);setVal('leaveFrom',r.leaveFrom||'');setVal('leaveTo',r.leaveTo||'');setVal('note',r.note||'');if(document.getElementById('dailyIsOT')){document.getElementById('dailyIsOT').checked=!!r.dailyIsOT;document.getElementById('dailyOtReasonPanel')?.classList.toggle('show',!!r.dailyIsOT);if(document.getElementById('dailyOtReasonInput'))setVal('dailyOtReasonInput',(db.ots||[]).find(o=>o.source==='dailyOT'&&o.date===r.date&&String(o.name||'').toLowerCase().trim()===String(r.name||'').toLowerCase().trim())?.reason||'');}leaveTypes.forEach((t,i)=>document.getElementById('leave_'+i).checked=(r.leaves||[]).includes(t));syncLeavePanel((r.leaves||[]).length>0);document.getElementById('saveBtn').textContent='Cập nhật chấm công';document.querySelector('[data-tab="daily"]').click();refreshCalc()}
@@ -735,7 +754,7 @@ function addHoliday(){const date=val('customHolidayDate'),name=val('customHolida
 function delHoliday(date,name){if(confirm('Xóa ngày lễ này?')){db.holidays=db.holidays.filter(h=>!(h.date===date&&h.name===name));saveDB();refreshAll()}}
 function addPosition(){const p=val('newPosition').trim();if(!p)return;if(!db.positions.includes(p))db.positions.push(p);saveDB();setVal('newPosition','');refreshAll()}
 function backup(){download('SaoLuu_ChamCong_'+todayVN()+'.json',JSON.stringify(db,null,2),'application/json')}
-function restore(e){const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const d=JSON.parse(reader.result);if(!d.records||!d.ots)throw Error();if(confirm('Khôi phục sẽ thay thế dữ liệu hiện tại. Tiếp tục?')){db=normalizeDB(d);saveDB();refreshAll();alert('Đã khôi phục')}}catch(err){alert('File không hợp lệ')}};reader.readAsText(f)}
+
 function legacyEmployeeKey(e){return String(e?.code||e?.empCode||e?.name||'').trim().toLowerCase()}
 function legacyRecordKey(r){return String(r?.id||[r?.date,r?.name,r?.timeIn,r?.timeOut,r?.leaveFrom,r?.leaveTo].join('|')).trim().toLowerCase()}
 function legacyOtKey(r){return String(r?.id||[r?.date,r?.name,r?.from,r?.to,r?.reason].join('|')).trim().toLowerCase()}
@@ -750,9 +769,9 @@ function mergeLegacyData(source){
  db=normalizeDB({...db,employees:[...employees.values()],records:[...records.values()],ots:[...ots.values()],holidays:[...holidays.values()],positions});saveDB();refreshAll();return stats;
 }
 function restoreLegacy(e){const input=e.target,file=input.files?.[0],status=document.getElementById('legacyRestoreStatus');if(!file)return;status.textContent='Đang kiểm tra file…';const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!Array.isArray(data.employees)||!Array.isArray(data.records)||!Array.isArray(data.ots))throw new Error('File không đúng định dạng sao lưu chấm công.');if(!confirm('Gộp dữ liệu từ file '+file.name+' vào chương trình hiện tại? Dữ liệu mới sẽ được giữ nguyên.')){status.textContent='Đã hủy khôi phục.';input.value='';return}const stats=mergeLegacyData(data);const message=`Đã khôi phục: ${stats.employees} nhân viên mới, ${stats.records} dòng chấm công, ${stats.ots} dòng tăng ca, ${stats.holidays} ngày lễ.`;status.textContent=message;input.value='';alert(message+' Dữ liệu đã tự lưu và sẽ đồng bộ khi bạn đăng nhập.')}catch(err){status.textContent=err.message||'File không hợp lệ.';input.value='';alert(status.textContent)}};reader.onerror=()=>{status.textContent='Không đọc được file sao lưu.';input.value=''};reader.readAsText(file)}
-function deleteAll(){if(confirm('Bạn chắc chắn muốn xóa TOÀN BỘ dữ liệu?')){localStorage.removeItem(KEY);localStorage.removeItem(OLD_KEY);idbDelete('main');db=emptyDB();saveDB();refreshAll()}}
+
 function companyHeaderHtml(){return `<div class="print-head"><div class="c1">CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH</div><div class="c2">NHÀ MÁY XLCTR LIÊN ĐẦM</div></div>`}
-function signHtml(){return `<table class="sign-table"><tr><td>Người lập bảng</td><td>Quản lý<br><span style="font-weight:700">Lê Văn Quang</span></td></tr><tr><td></td><td></td></tr></table>`}
+function signHtml(){return `<table class="sign-table"><tr><td>Người lập bảng</td><td>Quản lý<br><span style="font-weight:700">${managerSignature()}</span></td></tr><tr><td></td><td></td></tr></table>`}
 function reportTitle(){const ym=val('reportMonth');return `BẢNG TỔNG HỢP CHẤM CÔNG THÁNG ${ym.slice(5)}/${ym.slice(0,4)}`}
 function dataTitle(){const ym=dataSelectedMonth();return `NHẬT KÝ CHẤM CÔNG / DỮ LIỆU THÁNG ${ym.slice(5)}/${ym.slice(0,4)}`}
 function getReportRows(){const ym=val('reportMonth'),q=val('reportSearch').toLowerCase().trim();return buildMonthlyReportRows(ym,q)}
@@ -763,7 +782,7 @@ function printTable(type){const title=type==='data'?dataTitle():reportTitle();co
 function xmlCell(v){return String(v??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]))}
 function rowXml(cells){return '<Row>'+cells.map(c=>`<Cell><Data ss:Type="String">${xmlCell(c)}</Data></Cell>`).join('')+'</Row>'}
 function sheetXml(name, rows){return `<Worksheet ss:Name="${xmlCell(name)}"><Table>${rows.map(rowXml).join('')}</Table></Worksheet>`}
-function exportExcel(){const ym=val('reportMonth');const reportRows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],[reportTitle()],['TT','Mã NV','Họ tên','Vị trí','Tổng ngày làm việc','Tổng giờ công','OT 150%','OT 200%','OT 300%','Nghỉ/Công tác/Đào tạo','Ghi chú'],...getReportRows().map((r,i)=>[i+1,r.code||'',r.name,r.position||'',round(r.days),round(r.hours),round(r.ot150||0),round(r.ot200||0),round(r.ot300||0),Object.entries(r.leaves).map(([k,v])=>`${k}: ${v}`).join('; '),[...new Set(r.notes)].join('; ')]),[],['Người lập bảng','','','','','','','Quản lý'],['','','','','','','','Lê Văn Quang']];const dataRows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],[dataTitle()],['TT','Ngày','Mã NV','Họ tên','Vị trí','Vào','Ra','Giờ công','Ngày công','OT Tổng (giờ)','OT Từ giờ','OT Đến giờ','OT Lý do','Nghỉ','Ghi chú'],...getDataRows().map((r,i)=>[i+1,fmtVN(r.date),findEmployee(r.name)?.code||r.empCode||'',r.name,r.position,displayTimeIn(r),displayTimeOut(r),displayWorkHours(r),displayWorkDay(r),...otCellsArrayFor(r.name,r.date),(r.leaves||[]).join(', '),r.note||'']),[],['Người lập bảng','','','','','','','Quản lý'],['','','','','','','','Lê Văn Quang']];const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${sheetXml('Tong hop thang',reportRows)}${sheetXml('Nhat ky du lieu',dataRows)}</Workbook>`;download('ChamCong_'+ym+'_TongHop_NhatKy.xls',xml,'application/vnd.ms-excel')}
+function exportExcel(){const ym=val('reportMonth');const reportRows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],[reportTitle()],['TT','Mã NV','Họ tên','Vị trí','Tổng ngày làm việc','Tổng giờ công','OT 150%','OT 200%','OT 300%','Nghỉ/Công tác/Đào tạo','Ghi chú'],...getReportRows().map((r,i)=>[i+1,r.code||'',r.name,r.position||'',round(r.days),round(r.hours),round(r.ot150||0),round(r.ot200||0),round(r.ot300||0),Object.entries(r.leaves).map(([k,v])=>`${k}: ${v}`).join('; '),[...new Set(r.notes)].join('; ')]),[],['Người lập bảng','','','','','','','Quản lý'],['','','','','','','',managerSignature()]];const dataRows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],[dataTitle()],['TT','Ngày','Mã NV','Họ tên','Vị trí','Vào','Ra','Giờ công','Ngày công','OT Tổng (giờ)','OT Từ giờ','OT Đến giờ','OT Lý do','Nghỉ','Ghi chú'],...getDataRows().map((r,i)=>[i+1,fmtVN(r.date),findEmployee(r.name)?.code||r.empCode||'',r.name,r.position,displayTimeIn(r),displayTimeOut(r),displayWorkHours(r),displayWorkDay(r),...otCellsArrayFor(r.name,r.date),(r.leaves||[]).join(', '),r.note||'']),[],['Người lập bảng','','','','','','','Quản lý'],['','','','','','','',managerSignature()]];const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${sheetXml('Tong hop thang',reportRows)}${sheetXml('Nhat ky du lieu',dataRows)}</Workbook>`;download('ChamCong_'+ym+'_TongHop_NhatKy.xls',xml,'application/vnd.ms-excel')}
 function spreadsheetCell(value,style='',mergeAcross=0,mergeDown=0){const attrs=(style?` ss:StyleID="${style}"`:'')+(mergeAcross>0?` ss:MergeAcross="${mergeAcross}"`:'')+(mergeDown>0?` ss:MergeDown="${mergeDown}"`:'');return`<Cell${attrs}><Data ss:Type="String">${xmlCell(value)}</Data></Cell>`}
 function spreadsheetRow(cells,height=''){return`<Row${height?` ss:Height="${height}"`:''}>${cells.join('')}</Row>`}
 function monthlyTimesheetExcelXml(ym){
@@ -777,14 +796,14 @@ function monthlyTimesheetExcelXml(ym){
  rows.push(spreadsheetRow(model.days.map(day=>spreadsheetCell(`${String(day.day).padStart(2,'0')}\n${day.weekday}`,day.sunday?'HeaderSunday':'Header'))));
  model.people.forEach((person,index)=>{const rowTypes=isLeVanQuangName(person.name)?['overtime']:['regular','overtime'];rowTypes.forEach((type,rowIndex)=>{const fixed=rowIndex===0?[spreadsheetCell(index+1,'Center',0,rowTypes.length-1),spreadsheetCell(person.code||'','Center',0,rowTypes.length-1),spreadsheetCell(person.name,'CellLeft',0,rowTypes.length-1),spreadsheetCell(person.position||'','CellLeft',0,rowTypes.length-1)]:[];const label=type==='regular'?'Công thường':'Tăng ca';const values=model.days.map(day=>spreadsheetCell(type==='regular'?monthlyTimesheetRegularValue(model,person,day.date):monthlyTimesheetOvertimeValue(model,person,day.date),day.sunday?'Sunday':'Center'));rows.push(spreadsheetRow([...fixed,spreadsheetCell(label,type==='overtime'?'Overtime':'CellLeft'),...values]))})});
  if(!model.people.length)rows.push(spreadsheetRow([spreadsheetCell('Chưa có nhân viên hoặc dữ liệu trong tháng.','Center',columnCount-1)]));
- rows.push(spreadsheetRow([],'8'));rows.push(spreadsheetRow([spreadsheetCell('Quản lý','Signature',half-1),spreadsheetCell('Người lập bảng','Signature',columnCount-half-1)]));rows.push(spreadsheetRow([spreadsheetCell('Lê Văn Quang','Signature',half-1),spreadsheetCell('','Signature',columnCount-half-1)],'55'));
+ rows.push(spreadsheetRow([],'8'));rows.push(spreadsheetRow([spreadsheetCell('Quản lý','Signature',half-1),spreadsheetCell('Người lập bảng','Signature',columnCount-half-1)]));rows.push(spreadsheetRow([spreadsheetCell(managerSignature(),'Signature',half-1),spreadsheetCell('','Signature',columnCount-half-1)],'55'));
  const border='<Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/></Borders>';
  const styles=`<Styles><Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Times New Roman" ss:Size="10"/></Style><Style ss:ID="Company"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Times New Roman" ss:Size="12" ss:Bold="1"/></Style><Style ss:ID="Plant"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Times New Roman" ss:Size="11" ss:Bold="1" ss:Underline="Single"/></Style><Style ss:ID="Title"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Times New Roman" ss:Size="13" ss:Bold="1"/></Style><Style ss:ID="Month"><Alignment ss:Horizontal="Center"/><Font ss:FontName="Times New Roman" ss:Size="10"/></Style><Style ss:ID="Header"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>${border}<Font ss:FontName="Times New Roman" ss:Size="9" ss:Bold="1"/><Interior ss:Color="#8BE58B" ss:Pattern="Solid"/></Style><Style ss:ID="HeaderSunday"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>${border}<Font ss:FontName="Times New Roman" ss:Size="9" ss:Bold="1"/><Interior ss:Color="#C6E8F1" ss:Pattern="Solid"/></Style><Style ss:ID="Center"><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/>${border}</Style><Style ss:ID="CellLeft"><Alignment ss:Vertical="Center" ss:WrapText="1"/>${border}</Style><Style ss:ID="Overtime"><Alignment ss:Vertical="Center" ss:WrapText="1"/>${border}<Font ss:FontName="Times New Roman" ss:Size="10" ss:Bold="1" ss:Color="#0F4C81"/></Style><Style ss:ID="Sunday"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/>${border}<Interior ss:Color="#C6E8F1" ss:Pattern="Solid"/></Style><Style ss:ID="Signature"><Alignment ss:Horizontal="Center" ss:Vertical="Top"/><Font ss:FontName="Times New Roman" ss:Size="11" ss:Bold="1"/></Style></Styles>`;
  const columns='<Column ss:Width="32"/><Column ss:Width="55"/><Column ss:Width="125"/><Column ss:Width="85"/><Column ss:Width="75"/>'+model.days.map(()=>'<Column ss:Width="27"/>').join('');
  return`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${styles}<Worksheet ss:Name="Bang cong ${String(model.month).padStart(2,'0')}-${model.year}"><Table>${columns}${rows.join('')}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><PageSetup><Layout x:Orientation="Landscape"/></PageSetup><FitToPage/><Print><FitWidth>1</FitWidth><FitHeight>0</FitHeight></Print></WorksheetOptions></Worksheet></Workbook>`
 }
 function exportMonthlyTimesheetExcel(){const ym=timesheetMonthValue();download(`BangChamCong_${ym}.xls`,monthlyTimesheetExcelXml(ym),'application/vnd.ms-excel;charset=utf-8');addAudit('Xuất Excel Bảng chấm công',ym,'Bảng công chi tiết theo ngày');saveDB()}
-function exportMonthlySummaryExcel(){const ym=val('reportMonth')||todayVN().slice(0,7),rows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],[reportTitle()],['TT','Mã NV','Họ tên','Vị trí','Tổng ngày làm việc','Tổng giờ công','OT 150%','OT 200%','OT 300%','Nghỉ/Công tác/Đào tạo','Ghi chú'],...getReportRows().map((r,i)=>[i+1,r.code||'',r.name,r.position||'',round(r.days),round(r.hours),round(r.ot150||0),round(r.ot200||0),round(r.ot300||0),Object.entries(r.leaves).map(([k,v])=>`${k}: ${v}`).join('; '),[...new Set(r.notes)].join('; ')]),[],['Quản lý','','','','','','','Người lập bảng'],['Lê Văn Quang','','','','','','','']],xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${sheetXml('Tong hop thang',rows)}</Workbook>`;download(`BangTongHopChamCong_${ym}.xls`,xml,'application/vnd.ms-excel;charset=utf-8');addAudit('Xuất Excel Tổng hợp tháng',ym,'Bảng tổng hợp chấm công');saveDB()}
+function exportMonthlySummaryExcel(){const ym=val('reportMonth')||todayVN().slice(0,7),rows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],[reportTitle()],['TT','Mã NV','Họ tên','Vị trí','Tổng ngày làm việc','Tổng giờ công','OT 150%','OT 200%','OT 300%','Nghỉ/Công tác/Đào tạo','Ghi chú'],...getReportRows().map((r,i)=>[i+1,r.code||'',r.name,r.position||'',round(r.days),round(r.hours),round(r.ot150||0),round(r.ot200||0),round(r.ot300||0),Object.entries(r.leaves).map(([k,v])=>`${k}: ${v}`).join('; '),[...new Set(r.notes)].join('; ')]),[],['Quản lý','','','','','','','Người lập bảng'],[managerSignature(),'','','','','','','']],xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${sheetXml('Tong hop thang',rows)}</Workbook>`;download(`BangTongHopChamCong_${ym}.xls`,xml,'application/vnd.ms-excel;charset=utf-8');addAudit('Xuất Excel Tổng hợp tháng',ym,'Bảng tổng hợp chấm công');saveDB()}
 function exportSelectedMonthlyTimesheet(){if(val('timesheetExportFormat')==='pdf'){printMonthlyTimesheet();return}exportMonthlyTimesheetExcel()}
 function exportSelectedMonthlySummary(){if(val('summaryExportFormat')==='pdf'){const ym=val('reportMonth')||todayVN().slice(0,7);printTable('report');addAudit('Xuất PDF Tổng hợp tháng',ym,'Mở bản xem trước để lưu PDF hoặc in');saveDB();return}exportMonthlySummaryExcel()}
 function download(name,content,type){const blob=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
@@ -801,8 +820,8 @@ function printCss(type){
 }
 function printTable(type){const title=type==='data'?dataTitle():reportTitle();const table=type==='data'?buildDataTable():buildReportTable();const signs=type==='report'?monthlySummarySignHtml():signHtml();const oldTitle=document.title;document.title='';const w=window.open('','_blank');w.document.open();w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title></title><style>${printCss(type)}</style></head><body>${companyHeaderHtml()}<div class="print-title">${title}</div>${table}${signs}<script>window.onload=()=>{setTimeout(()=>window.print(),150)};window.onafterprint=()=>{setTimeout(()=>window.close(),150)}<\/script></body></html>`);w.document.close();setTimeout(()=>{document.title=oldTitle},1000)}
 
-function signHtml(){return `<table class="sign-table"><tr><td style="width:50%">Người lập bảng</td><td style="width:50%">Quản lý<div class="sign-name">Lê Văn Quang</div></td></tr></table>`}
-function monthlySummarySignHtml(){return `<table class="sign-table"><tr><td style="width:50%">Quản lý<div class="sign-name">Lê Văn Quang</div></td><td style="width:50%">Người lập bảng</td></tr></table>`}
+function signHtml(){return `<table class="sign-table"><tr><td style="width:50%">Người lập bảng</td><td style="width:50%">Quản lý<div class="sign-name">${managerSignature()}</div></td></tr></table>`}
+function monthlySummarySignHtml(){return `<table class="sign-table"><tr><td style="width:50%">Quản lý<div class="sign-name">${managerSignature()}</div></td><td style="width:50%">Người lập bảng</td></tr></table>`}
 
 /* ===== V4.0 Offline Professional Add-ons ===== */
 function ensureV4(){db.audit=db.audit||[];db.leaveSettings=db.leaveSettings||{defaultQuota:12,quotas:{}};db.__version='4.1-offline-professional'}
@@ -964,12 +983,142 @@ function renderAdvPositionOptions(){const sel=document.getElementById('advPositi
 function initV4(){ensureV4();['dashDate','dashMonth','leaveYear','leaveDefaultQuota','leaveSearch','advMonth','advPosition','advSearch','auditFrom','auditTo','auditSearch'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',refreshV4);el.addEventListener('change',refreshV4)}});const map={dashRefreshBtn:refreshV4,saveLeaveSettingsBtn:saveLeaveSettings,printLeaveBtn:()=>printV4Simple('leave'),printLeaveSlipBtn:printLeaveSlip,resetLeaveSlipBtn:resetLeaveSlip,advPrintBtn:()=>printV4Simple('advanced'),advExportBtn:exportAdvancedExcel,clearAuditFilterBtn:()=>{setVal('auditFrom','');setVal('auditTo','');setVal('auditSearch','');renderAuditLog()},clearAuditBtn:()=>{if(confirm('Xóa toàn bộ Audit Log?')){db.audit=[];saveDB();renderAuditLog()}}};Object.entries(map).forEach(([id,fn])=>{const el=document.getElementById(id);if(el)el.onclick=fn});const lse=document.getElementById('leaveSlipEmployee');if(lse){lse.addEventListener('change',updateLeaveSlipEmployee);lse.addEventListener('blur',updateLeaveSlipEmployee);lse.addEventListener('input',()=>{const e=findEmployee(lse.value);if(e)updateLeaveSlipEmployee()})}const lsm=document.getElementById('leaveSlipMonth');if(lsm)lsm.addEventListener('change',()=>{setVal('leaveSlipFrom','');setVal('leaveSlipTo','');setVal('leaveSlipDays','');setVal('leaveSlipReason','');renderLeaveSlipPeriods({autoSelectFirst:true})});['leaveSlipFrom','leaveSlipTo'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('change',calcLeaveSlipDays)});refreshV4()}
 function printV4Simple(type){const title=type==='leave'?'BẢNG THEO DÕI PHÉP NĂM':'BÁO CÁO NÂNG CAO';const table=type==='leave'?document.querySelector('#leavePro .table-wrap').innerHTML:document.querySelector('#advancedReport .table-wrap').innerHTML;const w=window.open('','_blank');w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title></title><style>${printCss('data')} .actions,input,button{display:none!important}</style></head><body>${companyHeaderHtml()}<div class="print-title">${title}</div>${table}${signHtml()}<script>window.onload=()=>setTimeout(()=>window.print(),150);window.onafterprint=()=>setTimeout(()=>window.close(),150)<\/script></body></html>`);w.document.close()}
 function exportAdvancedExcel(){const ym=monthOf('advMonth');const rows=[['CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH'],['NHÀ MÁY XLCTR LIÊN ĐẦM'],['BÁO CÁO NÂNG CAO '+ym],['TT','Mã NV','Họ tên','Vị trí','Ngày công','Giờ công','OT150','OT200','OT300','Nghỉ phép','Nghỉ khác/CT/ĐT','Điểm chuyên cần'],...monthEmployeeStats(ym).map((x,i)=>[i+1,x.code||'',x.name,x.position,round(x.days),round(x.hours),round(x.ot150),round(x.ot200),round(x.ot300),x.leavePhep,x.leaveOther,Math.max(0,100-(x.leavePhep+x.leaveOther)*3)+'%'])];const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">${sheetXml('Bao cao nang cao',rows)}</Workbook>`;download('BaoCaoNangCao_'+ym+'.xls',xml,'application/vnd.ms-excel')}
+function leaveSlipExportData(){
+ const name=val('leaveSlipEmployee').trim(),position=val('leaveSlipPosition').trim(),department=val('leaveSlipDepartment').trim(),from=val('leaveSlipFrom'),to=val('leaveSlipTo'),days=val('leaveSlipDays'),reason=val('leaveSlipReason').trim(),handover=val('leaveSlipHandover').trim();
+ if(!name||!from||!to){alert('Vui lòng chọn nhân viên và nhập đầy đủ Từ ngày/Đến ngày');return null}
+ const employee=findEmployee(name);if(employee?.terminationDate&&(from>=employee.terminationDate||to>=employee.terminationDate)){alert('Chỉ được xuất dữ liệu nghỉ trước ngày nghỉ việc '+fmtVN(employee.terminationDate)+'.');return null}
+ const type=(document.querySelector('input[name="leaveSlipType"]:checked')||{value:'Phép năm'}).value;
+ const requestDate=viDateObj(from);requestDate.setDate(requestDate.getDate()-3);
+ return{name,position,department,from,to,days,reason,handover,type,requestDay:String(requestDate.getDate()).padStart(2,'0'),requestMonth:String(requestDate.getMonth()+1).padStart(2,'0'),requestYear:requestDate.getFullYear()};
+}
+// Word export uses native OOXML; no HTML/CSS import and no network dependency.
+function leaveSlipWordFileName(data){
+ const safe=String(data.name||'Nhan_vien').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/[^a-z0-9]+/gi,'_').replace(/^_+|_+$/g,'');
+ return 'Phieu_xin_nghi_phep_'+(safe||'Nhan_vien')+'_'+String(data.from||'').replace(/-/g,'')+'.docx';
+}
+function leaveSlipPrintLogo(){
+ const match=String(printLeaveSlip).match(/data:image\/jpeg;base64,[A-Za-z0-9+/=]+/);
+ if(!match)throw new Error('Không tìm thấy logo trong mẫu in Phiếu nghỉ phép.');
+ return Uint8Array.from(atob(match[0].split(',')[1]),c=>c.charCodeAt(0));
+}
+function leaveSlipZip(files){
+ const encode=s=>new TextEncoder().encode(s),parts=[],directory=[];
+ let offset=0;
+ const crc32=bytes=>{let crc=0xffffffff;for(const byte of bytes){crc^=byte;for(let k=0;k<8;k++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}return(crc^0xffffffff)>>>0};
+ for(const [name,content] of Object.entries(files)){
+  const n=encode(name),data=typeof content==='string'?encode(content):content,crc=crc32(data);
+  const local=new Uint8Array(30+n.length),lv=new DataView(local.buffer);
+  lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0x800,true);
+  lv.setUint16(12,33,true);lv.setUint32(14,crc,true);lv.setUint32(18,data.length,true);lv.setUint32(22,data.length,true);lv.setUint16(26,n.length,true);local.set(n,30);
+  const central=new Uint8Array(46+n.length),cv=new DataView(central.buffer);
+  cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0x800,true);
+  cv.setUint16(14,33,true);cv.setUint32(16,crc,true);cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);cv.setUint16(28,n.length,true);cv.setUint32(42,offset,true);central.set(n,46);
+  parts.push(local,data);directory.push(central);offset+=local.length+data.length;
+ }
+ const end=new Uint8Array(22),ev=new DataView(end.buffer),count=directory.length;
+ ev.setUint32(0,0x06054b50,true);ev.setUint16(8,count,true);ev.setUint16(10,count,true);ev.setUint32(12,directory.reduce((sum,x)=>sum+x.length,0),true);ev.setUint32(16,offset,true);
+ return new Blob([...parts,...directory,end],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function leaveSlipDocx(data){
+ const xml=s=>String(s??'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+ const mm=x=>Math.round(x*1440/25.4),W=mm(190);
+ const run=(text,opt={})=>'<w:r><w:rPr><w:rFonts w:ascii="'+(opt.font||'Times New Roman')+'" w:hAnsi="'+(opt.font||'Times New Roman')+'" w:eastAsia="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="'+Math.round((opt.size||9)*2)+'"/><w:szCs w:val="'+Math.round((opt.size||9)*2)+'"/>'+(opt.bold?'<w:b/>':'')+(opt.italic?'<w:i/>':'')+(opt.underline?'<w:u w:val="single"/>':'')+'<w:color w:val="111111"/></w:rPr>'+String(text??'').split(/\r?\n/).map((line,i)=>(i?'<w:br/>':'')+'<w:t xml:space="preserve">'+xml(line)+'</w:t>').join('')+'</w:r>';
+ const para=(runs,opt={})=>'<w:p><w:pPr><w:spacing w:before="'+(opt.before||0)+'" w:after="'+(opt.after||0)+'" w:line="'+(opt.line||206)+'" w:lineRule="'+(opt.exact?'exact':'atLeast')+'"/><w:jc w:val="'+(opt.align||'left')+'"/><w:widowControl w:val="0"/>'+(opt.border?'<w:pBdr><w:bottom w:val="dotted" w:sz="4" w:space="0" w:color="111111"/></w:pBdr>':'')+'</w:pPr>'+runs+'</w:p>';
+ const gap=height=>para('',{line:mm(height),exact:true});
+ const borders=style=>'<w:tblBorders>'+['top','left','bottom','right','insideH','insideV'].map(edge=>'<w:'+edge+' w:val="'+(style||'nil')+'" w:sz="4" w:color="555555"/>').join('')+'</w:tblBorders>';
+ const cell=(body,width,opt={})=>'<w:tc><w:tcPr><w:tcW w:w="'+width+'" w:type="dxa"/>'+(opt.merge?'<w:vMerge w:val="'+opt.merge+'"/>':'')+'<w:tcMar><w:top w:w="'+(opt.padY||0)+'" w:type="dxa"/><w:left w:w="'+(opt.padX||0)+'" w:type="dxa"/><w:bottom w:w="'+(opt.padY||0)+'" w:type="dxa"/><w:right w:w="'+(opt.padX||0)+'" w:type="dxa"/></w:tcMar><w:vAlign w:val="'+(opt.valign||'bottom')+'"/>'+(opt.dotted?'<w:tcBorders><w:bottom w:val="dotted" w:sz="4" w:color="111111"/></w:tcBorders>':'')+'</w:tcPr>'+body+'</w:tc>';
+ const table=(widths,rows,opt={})=>'<w:tbl><w:tblPr><w:tblW w:w="'+widths.reduce((s,x)=>s+x,0)+'" w:type="dxa"/><w:jc w:val="left"/><w:tblInd w:w="0" w:type="dxa"/>'+borders(opt.borders)+'<w:tblLayout w:type="fixed"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="0" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="0" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>'+widths.map(w=>'<w:gridCol w:w="'+w+'"/>').join('')+'</w:tblGrid>'+rows.map(row=>'<w:tr><w:trPr><w:cantSplit/>'+(opt.height?'<w:trHeight w:val="'+opt.height+'" w:hRule="'+(opt.exact?'exact':'atLeast')+'"/>':'')+'</w:trPr>'+row.join('')+'</w:tr>').join('')+'</w:tbl>';
+ const drawing='<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="684000" cy="684000"/><wp:docPr id="1" name="Logo Sài Gòn Xanh" descr="Logo Công ty Sài Gòn Xanh"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="1" name="logo.jpg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rIdLogo"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="684000" cy="684000"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>';
+ const headWidths=[mm(22.8),mm(112.1),W-mm(22.8)-mm(112.1)];
+ const company=[
+  para(run('CÔNG TY TNHH CÔNG NGHỆ SINH HỌC SÀI GÒN XANH',{size:9,bold:true}),{line:204}),
+  para(run('ĐC: 127 Nguyễn Trọng Tuyển, Phường Cầu Kiệu, TP.HCM'),{line:214}),
+  para(run('ĐT: 028.3844.2457 – 028.3997.1869'),{line:214}),
+  para(run('Email: ')+run('hr@greensaigon.com.vn',{underline:true}),{line:214}),
+  para(run('www.greensaigon.com.vn'),{line:214})
+ ].join('');
+ const meta=[['Mã số',': SGX-HR-FM-4.1'],['Phiên bản',': 1.0'],['Ngày',': 01/04/2025'],['Số trang',': Trang 1/1']];
+ const metaWidths=[mm(23.1),headWidths[2]-mm(23.1)];
+ const metaTable=table(metaWidths,meta.map(item=>item.map((text,i)=>cell(para(run(text,{size:8}),{line:180}),metaWidths[i],{padX:mm(1.3),padY:0,valign:'center'}))),{height:267,exact:true}).replace('<w:insideH w:val="nil"','<w:insideH w:val="single"');
+ const headRows=[[
+  cell(para(drawing,{align:'center',line:20}),headWidths[0],{valign:'center',padX:mm(.6),padY:mm(.6)}),
+  cell(company,headWidths[1],{valign:'top',padX:mm(1.4),padY:mm(1.1)}),
+  cell(metaTable+para('',{line:1,exact:true}),headWidths[2],{valign:'top'})
+ ]];
+ let body=table(headWidths,headRows,{borders:'single'});
+ body+=para(run('TP.HCM, ngày '+data.requestDay+' tháng '+data.requestMonth+' năm '+data.requestYear,{italic:true}),{align:'right',before:mm(2),after:mm(.8),line:202});
+ body+=para(run('PHIẾU XIN NGHỈ PHÉP',{size:14,bold:true}),{align:'center',after:mm(.8),line:314});
+ body+=para(run('Kính gửi: Phòng Nhân sự',{size:10,bold:true}),{align:'center',after:mm(2),line:224});
+ const formRow=fields=>{
+  const widths=fields.map(f=>mm(f[1]));
+  return table(widths,[fields.map((f,i)=>cell(para(run(f[0],{bold:!!f[2]}),{align:f[3]?'center':'left',line:206}),widths[i],{dotted:!!f[2],padX:f[2]?mm(.8):0}))],{height:mm(3.7)});
+ };
+ body+=formRow([['Họ và tên:',14.9],[data.name,89.8,true],['Chức vụ:',13.35],[data.position,71.95,true]])+gap(1.04);
+ body+=formRow([['Bộ phận:',13.2],[data.department,176.8,true]])+gap(1.04);
+ body+=formRow([['Tổng thời gian nghỉ:',28.1],[data.days,20,true,true],[' ngày.',9.7],['Từ ngày',12.25],[fmtVN(data.from),43,true,true],[' đến hết ngày',19.35],[fmtVN(data.to),43,true,true],['',14.6]])+gap(1.04);
+ body+=formRow([['Lý do nghỉ:',16.55],[data.reason||'',173.45,true]])+gap(1.04);
+ body+=formRow([['Bàn giao công việc cho:',32.75],[data.handover||'',157.25,true]])+gap(2.2);
+ const quarters=[mm(48),mm(48),mm(48),W-3*mm(48)];
+ const types=[['Phép năm','Phép năm'],['Nghỉ chế độ (hiếu, hỉ)','Nghỉ chế độ (hiếu,hỉ)'],['Nghỉ không lương','Nghỉ không lương'],['Thai sản','Thai sản']];
+ body+=table(quarters,[types.map((t,i)=>cell(para(run(data.type===t[0]?'☒':'☐',{font:'Segoe UI Symbol',size:9})+run(' '+t[1],{bold:true}),{line:202,exact:true}),quarters[i]))])+gap(1.8);
+ for(const label of ['Ý kiến của Trưởng bộ phận:','Ý kiến của Giám đốc ban:','Ý kiến của Phòng Nhân sự:']){
+  body+=para(run(label),{line:189,exact:true})+para('',{line:mm(3.3),exact:true,border:true})+gap(1.2);
+ }
+ body+=gap(1.3);
+ const signatureWidths=[mm(46),mm(2),mm(46),mm(2),mm(46),mm(2),W-3*mm(48)];
+ body+=table(signatureWidths,[['Người xin phép','','Giám đốc/Trưởng BP','','Phòng Nhân sự','','Giám đốc HCNS'].map((title,i)=>cell(para(run(title,{bold:true}),{align:'center',line:202}),signatureWidths[i],{valign:'top'}))],{height:mm(20)});
+ body+=para('',{line:20,exact:true});
+ const declaration='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+ const wns='http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+ const document=declaration+'<w:document xmlns:w="'+wns+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>'+body+'<w:sectPr><w:pgSz w:w="'+mm(210)+'" w:h="'+mm(297)+'"/><w:pgMar w:top="'+mm(7)+'" w:right="'+mm(10)+'" w:bottom="'+mm(6)+'" w:left="'+mm(10)+'" w:header="0" w:footer="0" w:gutter="0"/></w:sectPr></w:body></w:document>';
+ return leaveSlipZip({
+  '[Content_Types].xml':declaration+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/></Types>',
+  '_rels/.rels':declaration+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>',
+  'word/document.xml':document,
+  'word/_rels/document.xml.rels':declaration+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdLogo" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.jpg"/><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rIdSettings" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/></Relationships>',
+  'word/styles.xml':declaration+'<w:styles xmlns:w="'+wns+'"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:eastAsia="Times New Roman" w:cs="Times New Roman"/><w:sz w:val="18"/><w:lang w:val="vi-VN"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:before="0" w:after="0" w:line="206" w:lineRule="atLeast"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style></w:styles>',
+  'word/settings.xml':declaration+'<w:settings xmlns:w="'+wns+'"><w:zoom w:percent="100"/><w:defaultTabStop w:val="720"/><w:compat><w:compatSetting w:name="compatibilityMode" w:uri="http://schemas.microsoft.com/office/word" w:val="15"/></w:compat></w:settings>',
+  'word/media/logo.jpg':leaveSlipPrintLogo()
+ });
+}
+function createLeaveSlipWord(){
+ const data=leaveSlipExportData();if(!data)return null;
+ try{return{data,blob:leaveSlipDocx(data),fileName:leaveSlipWordFileName(data)}}catch(error){console.error(error);alert('Không thể tạo file Word: '+error.message);return null}
+}
+function downloadLeaveSlipWord(doc){
+ const url=URL.createObjectURL(doc.blob),link=document.createElement('a');
+ link.href=url;link.download=doc.fileName;document.body.appendChild(link);link.click();link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function exportLeaveSlipWord(){
+ const doc=createLeaveSlipWord();if(!doc)return;
+ downloadLeaveSlipWord(doc);
+ addAudit('Xuất Word Phiếu nghỉ phép',doc.data.name,fmtVN(doc.data.from)+' đến '+fmtVN(doc.data.to)+' - '+doc.data.type);saveDB();
+}
+async function shareLeaveSlipWord(){
+ const doc=createLeaveSlipWord();if(!doc)return;
+ const fallback=()=>{downloadLeaveSlipWord(doc);alert('File Word đã được tải xuống. Hãy đính kèm file này trong Zalo, WhatsApp hoặc ứng dụng bạn muốn gửi.')};
+ if(typeof File==='undefined'||!navigator.share){fallback();return}
+ const file=new File([doc.blob],doc.fileName,{type:doc.blob.type});
+ let canShare=true;
+ try{if(navigator.canShare)canShare=navigator.canShare({files:[file]})}catch(error){canShare=false}
+ if(!canShare){fallback();return}
+ try{await navigator.share({title:'Phiếu xin nghỉ phép',files:[file]});addAudit('Chia sẻ Word Phiếu nghỉ phép',doc.data.name,fmtVN(doc.data.from)+' đến '+fmtVN(doc.data.to));saveDB()}catch(error){if(error&&error.name==='AbortError')return;fallback()}
+}
+function bindLeaveSlipWordButtons(){
+ const exportButton=document.getElementById('exportLeaveSlipWordBtn'),shareButton=document.getElementById('shareLeaveSlipWordBtn');
+ if(exportButton)exportButton.onclick=exportLeaveSlipWord;
+ if(shareButton)shareButton.onclick=shareLeaveSlipWord;
+}
+// The secured restore handler is installed by the next script before login.
+function restore(){return false}
+bindLeaveSlipWordButtons();
 const __v4_oldRefreshAll=refreshAll;refreshAll=function(){__v4_oldRefreshAll();if(document.getElementById('dashboard'))refreshV4()}
 const __v4_oldInit=init;init=function(){__v4_oldInit();initV4()}
 function v4WrapAction(fnName,action,targetFn,detailFn){const old=window[fnName]||eval(fnName);window[fnName]=function(...args){const before=JSON.stringify(db);const actionName=typeof action==='function'?action(args):action;const target=typeof targetFn==='function'?targetFn(args):'';const detail=typeof detailFn==='function'?detailFn(args):'';const ret=old.apply(this,args);setTimeout(()=>{try{if(JSON.stringify(db)!==before){addAudit(actionName,target,detail);saveDB();refreshV4()}}catch(e){}},0);return ret}}
 v4WrapAction('saveRecord','Lưu chấm công',()=>val('empName'),()=>`Ngày ${fmtVN(val('workDate'))}`);v4WrapAction('addOT',()=>editOtId?'Cập nhật tăng ca':'Thêm tăng ca',()=>val('otName'),()=>`Ngày ${fmtVN(val('workDate'))}, ${val('otFrom')}-${val('otTo')}`);v4WrapAction('addEmployeeFromSettings','Cập nhật nhân viên',()=>val('newEmpName'),()=>`Mã/Vị trí: ${val('newEmpCode')||''} ${val('newEmpPosition')||''}`);v4WrapAction('delRec','Xóa chấm công',(args)=>args[0],()=> 'Xóa dòng nhật ký');v4WrapAction('delOT','Xóa tăng ca',(args)=>args[0],()=> 'Xóa dòng tăng ca');v4WrapAction('restore','Khôi phục dữ liệu',()=>'',()=> 'Khôi phục từ JSON');
 
-init();
+// Application starts only after server authorization.
 
 
 /* ===== NÂNG CẤP OT: Lý do riêng + chọn từng khung giờ khi in phiếu ===== */
@@ -1179,19 +1328,214 @@ function cloudSetStatus(state,message){
  const badge=document.getElementById('cloudSyncStatus'),detail=document.getElementById('cloudAccountDetail');
  if(badge){badge.textContent=message;badge.dataset.state=state} if(detail)detail.textContent=message;
 }
-function cloudSaveSession(value){cloudSession=value;try{value?localStorage.setItem(CLOUD_SESSION_KEY,JSON.stringify(value)):localStorage.removeItem(CLOUD_SESSION_KEY)}catch(e){}cloudUpdateUi()}
-function cloudUpdateUi(){const email=cloudSession?.user?.email||'';document.getElementById('cloudLogoutBtn')?.classList.toggle('hide',!email);if(email){document.getElementById('cloudEmail').value=email;cloudSetStatus('online','Đã đăng nhập '+email)}else cloudSetStatus('offline','Chưa đăng nhập đồng bộ')}
+
+
 async function cloudAuthRequest(path,body,token=''){const response=await fetch(`${SUPABASE_URL}/auth/v1/${path}`,{method:'POST',headers:{apikey:SUPABASE_PUBLISHABLE_KEY,'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.msg||data.message||data.error_description||'Không thể đăng nhập');return data}
 async function cloudRefresh(){if(!cloudSession?.refresh_token)return false;try{const data=await cloudAuthRequest('token?grant_type=refresh_token',{refresh_token:cloudSession.refresh_token});cloudSaveSession(data);return true}catch(e){cloudSaveSession(null);return false}}
 async function cloudRest(path,options={},retry=true){if(!cloudSession?.access_token)throw new Error('Chưa đăng nhập');const response=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...options,headers:{apikey:SUPABASE_PUBLISHABLE_KEY,Authorization:`Bearer ${cloudSession.access_token}`,'Content-Type':'application/json',...(options.headers||{})}});if(response.status===401&&retry&&await cloudRefresh())return cloudRest(path,options,false);const text=await response.text();const data=text?JSON.parse(text):null;if(!response.ok)throw new Error(data?.message||data?.hint||'Không thể đồng bộ');return data}
-async function cloudAuthenticate(mode){const email=document.getElementById('cloudEmail').value.trim(),password=document.getElementById('cloudPassword').value;if(!email||password.length<6){alert('Vui lòng nhập email và mật khẩu ít nhất 6 ký tự.');return}cloudSetStatus('syncing',mode==='signup'?'Đang tạo tài khoản…':'Đang đăng nhập…');try{const data=await cloudAuthRequest(mode==='signup'?'signup':'token?grant_type=password',{email,password});if(data.access_token){cloudSaveSession(data);localStorage.setItem(CLOUD_PENDING_KEY,'1');await cloudSync(true);alert('Đăng nhập thành công. Dữ liệu sẽ tự đồng bộ giữa các thiết bị.')}else alert('Đã tạo tài khoản. Hãy kiểm tra email xác nhận rồi đăng nhập.')}catch(e){cloudSetStatus('error',e.message);alert(e.message)}}
-function scheduleCloudSync(){clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>cloudSync(false),700)}
-async function cloudSync(force=false){if(cloudSyncPromise)return cloudSyncPromise;if(!cloudSession?.user?.id){cloudUpdateUi();return}if(!navigator.onLine){cloudSetStatus('offline','Ngoại tuyến · thay đổi đang chờ đồng bộ');return}cloudSyncPromise=(async()=>{try{cloudSetStatus('syncing','Đang đồng bộ…');const owner=cloudSession.user.id;const remote=await cloudRest(`timekeeping_state?select=payload,updated_at&owner_id=eq.${encodeURIComponent(owner)}&key=eq.main`,{cache:'no-store'});const row=remote?.[0],remoteDb=row?.payload?.db?normalizeDB(row.payload.db):null,remoteTs=Number(row?.payload?.db?.__updatedAt||0),localTs=Number(db.__updatedAt||0),pending=localStorage.getItem(CLOUD_PENDING_KEY)==='1';if(remoteDb&&remoteTs>localTs&&!pending){db=remoteDb;try{localStorage.setItem(KEY,JSON.stringify(db));localStorage.setItem(OLD_KEY,JSON.stringify(db))}catch(e){}persistIndexedDB(db);refreshAll()}else if(force||pending||!remoteDb||localTs>remoteTs){await cloudRest('timekeeping_state?on_conflict=owner_id,key',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({owner_id:owner,key:'main',payload:{db},updated_at:new Date(db.__updatedAt||Date.now()).toISOString()})});localStorage.removeItem(CLOUD_PENDING_KEY)}const time=new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});cloudSetStatus('online','Đã đồng bộ lúc '+time)}catch(e){console.error(e);cloudSetStatus('error',e.message+' · dữ liệu vẫn giữ trên máy')}})();try{await cloudSyncPromise}finally{cloudSyncPromise=null}}
-function cloudInit(){try{cloudSession=JSON.parse(localStorage.getItem(CLOUD_SESSION_KEY)||'null')}catch(e){}cloudUpdateUi();document.getElementById('cloudLoginBtn')?.addEventListener('click',()=>cloudAuthenticate('login'));document.getElementById('cloudSignupBtn')?.addEventListener('click',()=>cloudAuthenticate('signup'));document.getElementById('cloudLogoutBtn')?.addEventListener('click',()=>{cloudSaveSession(null);cloudSetStatus('offline','Đã đăng xuất · dữ liệu vẫn lưu trên thiết bị')});window.addEventListener('online',()=>cloudSync(false));window.addEventListener('offline',()=>cloudSetStatus('offline','Ngoại tuyến · thay đổi đang chờ đồng bộ'));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')cloudSync(false)});setInterval(()=>{if(document.visibilityState==='visible')cloudSync(false)},15000);cloudSync(false)}
+
+
+
+
 function legacyRestoreInit(){document.getElementById('legacyRestoreFile')?.addEventListener('change',restoreLegacy)}
 window.addEventListener('DOMContentLoaded',legacyRestoreInit);
-window.addEventListener('DOMContentLoaded',cloudInit);
 
+
+</script>
+<script>
+/* Shared timekeeping, server-authorized accounts. No credentials embedded. */
+const TK_AUTH_KEY='VN_TIMEKEEPING_AUTH_V2';
+const TK_COLLECTIONS=['employees','records','ots','audit','holidays','positions'];
+let tkRole='',tkUsername='',tkBase=null,tkReady=false,tkStarted=false,tkConflict=false,tkLastValid=null,tkTimer=null,tkRevision='';
+const tkCopy=x=>JSON.parse(JSON.stringify(x));
+function tkCanonical(x){if(Array.isArray(x))return x.map(tkCanonical);if(x&&typeof x==='object')return Object.fromEntries(Object.keys(x).sort().map(k=>[k,tkCanonical(x[k])]));return x}
+const tkEqual=(a,b)=>JSON.stringify(tkCanonical(a??null))===JSON.stringify(tkCanonical(b??null));
+function tkKey(c,v){return c==='employees'?String(v.name||'').trim().toLowerCase():c==='holidays'?String(v.date||'')+'|'+String(v.name||''):c==='positions'?String(v):String(v.id||'')}
+function tkMap(c,list){const out=new Map();for(const v of list||[]){const k=tkKey(c,v);if(!k||out.has(k))throw Error('Dữ liệu có dòng trùng hoặc thiếu mã. Hãy sao lưu để kiểm tra.');out.set(k,v)}return out}
+function tkDiff(before,after){
+ const ops=[];for(const c of TK_COLLECTIONS){const a=tkMap(c,before?.[c]),b=tkMap(c,after?.[c]);for(const k of new Set([...a.keys(),...b.keys()]))if(!tkEqual(a.get(k),b.get(k)))ops.push({collection:c,key:k,before:a.get(k)??null,after:b.get(k)??null})}
+ const a=before?.leaveSettings?.quotas||{},b=after?.leaveSettings?.quotas||{};for(const k of new Set([...Object.keys(a),...Object.keys(b)]))if(!tkEqual(a[k],b[k]))ops.push({collection:'quotas',key:k,before:a[k]??null,after:b[k]??null});
+ const x=before?.leaveSettings?.defaultQuota,y=after?.leaveSettings?.defaultQuota;if(!tkEqual(x,y))ops.push({collection:'leaveSettings',key:'defaultQuota',before:x??null,after:y??null});return ops;
+}
+function tkRebase(remote,ops){const out=tkCopy(remote);for(const op of ops){const {collection:c,key:k,before,after}=op;let cur;if(TK_COLLECTIONS.includes(c)){const list=out[c]||[],idx=list.findIndex(v=>tkKey(c,v)===k);cur=idx<0?null:list[idx];if(tkEqual(cur,after))continue;if(!tkEqual(cur,before))throw Error('TK_CONFLICT: Cùng một dòng đã được tài khoản khác cập nhật.');if(after===null){if(idx>=0)list.splice(idx,1)}else if(idx>=0)list[idx]=tkCopy(after);else c==='audit'?list.unshift(tkCopy(after)):list.push(tkCopy(after));out[c]=list}else{out.leaveSettings??={defaultQuota:12,quotas:{}};out.leaveSettings.quotas??={};const target=c==='quotas'?out.leaveSettings.quotas:out.leaveSettings;cur=target[k]??null;if(tkEqual(cur,after))continue;if(!tkEqual(cur,before))throw Error('TK_CONFLICT: Cài đặt đã thay đổi.');if(after===null)delete target[k];else target[k]=tkCopy(after)}}return out}
+function tkFold(v){return JSON.stringify(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[đĐ]/g,'d').toLowerCase().replace(/[^a-z0-9]/g,'')}
+function tkBlocked(v){const t=tkFold(v);return t.includes('levanquang')||t.includes('a664')}
+function tkGuard(v){if(!tkReady)throw Error('Vui lòng đăng nhập.');if(tkRole==='limited'&&tkBlocked(v))throw Error('Thông tin này không thuộc phạm vi tài khoản được cấp.');}
+function managerSignature(){return tkRole==='owner'?'Lê Văn Quang':''}
+function tkMessage(text,error=false){const e=document.getElementById('tkLoginMessage');e.textContent=text;e.style.color=error?'#a21b1b':'#465b72'}
+function tkCache(){if(!tkReady||!tkBase)return;try{localStorage.setItem(KEY,JSON.stringify({base:tkBase,working:db}));tkLastValid=tkCopy(db)}catch(e){cloudSetStatus('error','Không lưu được bản nháp trên máy. Hãy sao lưu JSON.')}renderStorageInfo()}
+function saveDB(){if(!tkReady)return;try{tkGuard(db);db.__updatedAt=Date.now();tkDiff(tkBase,db);tkCache();setSaveStatus('Đã lưu trên thiết bị · đang chờ đồng bộ.');scheduleCloudSync()}catch(e){if(tkLastValid)db=tkCopy(tkLastValid);alert(e.message);refreshAll()}}
+function hydrateFromIndexedDB(){/* Legacy database stays untouched; account-scoped pending changes are loaded after authorization. */renderStorageInfo()}
+function persistIndexedDB(){/* Atomic base + working copy is kept in the account-specific cache. */}
+function cloudSaveSession(value){cloudSession=value;try{value?sessionStorage.setItem(TK_AUTH_KEY,JSON.stringify(value)):sessionStorage.removeItem(TK_AUTH_KEY)}catch(e){} }
+function cloudUpdateUi(){const e=document.getElementById('tkAccountName');if(e)e.textContent=tkUsername;document.getElementById('cloudLogoutBtn')?.classList.toggle('hide',!tkReady)}
+async function tkRpc(name,args={}){return cloudRest('rpc/'+name,{method:'POST',body:JSON.stringify(args),cache:'no-store'})}
+function tkProtectUi(){
+ document.getElementById('printLeVanQuangOtSlipBtn')?.closest('.field')?.classList.toggle('hide',tkRole!=='owner');
+ document.getElementById('tkLegacyBox').hidden=tkRole!=='owner';
+ if(typeof tkFileUi==='function')tkFileUi();
+ const info=document.getElementById('cloudAccountDetail');if(info)info.textContent='Tài khoản: '+tkUsername+' · Dữ liệu chung, được kiểm tra quyền trên máy chủ.';
+}
+async function tkEnter(){
+ const r=await tkRpc('tk_read_state');if(!['owner','limited'].includes(r.role)||!r.db)throw Error('Máy chủ chưa cấp quyền cho tài khoản.');
+ tkRole=r.role;tkUsername=r.username;const uid=cloudSession.user.id;KEY='VN_TIMEKEEPING_SECURE_'+uid;OLD_KEY=KEY+'_unused';DRAFT_KEY='VN_TIMEKEEPING_DRAFT_'+uid;IDB_NAME='VN_TIMEKEEPING_SECURE_IDB_'+uid;
+ let cached=null;try{cached=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
+ tkBase=tkCopy(r.db);db=tkCopy(r.db);tkConflict=false;tkRevision=r.revision||'';
+ if(cached?.base&&cached?.working){try{tkGuardCache(cached);db=tkRebase(r.db,tkDiff(cached.base,cached.working))}catch(e){if(e.message.includes('TK_CONFLICT')){tkBase=cached.base;db=cached.working;tkConflict=true}else{throw e}}}
+ tkReady=true;tkLastValid=tkCopy(db);document.body.classList.remove('tk-locked');document.getElementById('tkLogin').hidden=true;
+ if(!tkStarted){tkStarted=true;init();tkBindGuards();}else refreshAll();
+ tkCache();cloudUpdateUi();tkProtectUi();tkConflictPanel();
+ if(typeof tkFileInit==='function')await tkFileInit();
+ if(!tkConflict)await cloudSync();
+}
+function tkGuardCache(c){if(tkRole==='limited'&&(tkBlocked(c.base)||tkBlocked(c.working)))throw Error('Bản lưu trên máy không đúng phạm vi tài khoản. Vui lòng dùng hồ sơ trình duyệt riêng.');}
+async function cloudAuthenticate(){
+ const username=document.getElementById('tkUsername').value.trim(),password=document.getElementById('tkPassword').value,button=document.getElementById('tkLoginBtn');
+ if(!username||!password){tkMessage('Nhập tài khoản và mật khẩu.',true);return}
+ button.disabled=true;tkMessage('Đang đăng nhập và kiểm tra quyền…');
+ try{const email=username.toLowerCase()==='hoa.tvt'?'hoa.tvt@cham-cong.invalid':username;const s=await cloudAuthRequest('token?grant_type=password',{email,password});cloudSaveSession(s);await tkEnter();document.getElementById('tkPassword').value=''}catch(e){tkReady=false;document.body.classList.add('tk-locked');document.getElementById('tkLogin').hidden=false;cloudSaveSession(null);tkMessage(e.message||'Không thể đăng nhập.',true)}finally{button.disabled=false}
+}
+function scheduleCloudSync(){if(!tkReady||tkConflict)return;clearTimeout(cloudSaveTimer);cloudSaveTimer=setTimeout(()=>cloudSync(),700)}
+async function cloudSync(force=false){
+ if(!tkReady||!cloudSession)return false;if(cloudSyncPromise)return cloudSyncPromise;if(tkConflict){tkConflictPanel();return false}
+ if(!navigator.onLine){cloudSetStatus('offline','Ngoại tuyến · bản nháp đang được giữ trên thiết bị');return false}
+ cloudSyncPromise=(async()=>{try{
+  const sent=tkCopy(db),ops=tkDiff(tkBase,sent);
+  if(!ops.length&&tkRevision){const head=await tkRpc('tk_state_revision');if(head.role!==tkRole)throw Error('Quyền tài khoản đã thay đổi. Hãy đăng nhập lại.');if(head.revision===tkRevision){cloudSetStatus('online',tkUsername+' · Đã đồng bộ '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));if(typeof tkFileQueue==='function')tkFileQueue();return true}}
+  cloudSetStatus('syncing','Đang đồng bộ…');const r=await tkRpc(ops.length?'tk_apply_changes':'tk_read_state',ops.length?{ops}:{});
+  if(r.role!==tkRole)throw Error('Quyền tài khoản đã thay đổi. Hãy đăng xuất và đăng nhập lại.');
+  const later=tkDiff(sent,db),merged=tkRebase(r.db,later),changed=!tkEqual(db,merged);tkBase=tkCopy(r.db);db=merged;tkRevision=r.revision||'';tkCache();
+  if(changed){refreshAll();tkProtectUi()}
+  cloudSetStatus('online',tkUsername+' · Đã đồng bộ '+new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}));setSaveStatus('Đã lưu dữ liệu chung.');if(typeof tkFileQueue==='function')tkFileQueue();if(later.length)scheduleCloudSync();return true;
+ }catch(e){if(String(e.message).includes('TK_CONFLICT')){tkConflict=true;tkConflictPanel()}cloudSetStatus('error',e.message+' · Bản nháp vẫn giữ trên máy');return false}})();
+ try{return await cloudSyncPromise}finally{cloudSyncPromise=null}
+}
+function tkConflictPanel(){const box=document.getElementById('tkConflict');box.hidden=!tkConflict;if(tkConflict)box.scrollIntoView({block:'start'})}
+async function tkResolve(){
+ if(!confirm('Chương trình sẽ tải bản nháp hiện tại thành file JSON, sau đó lấy dữ liệu chung mới nhất. Bạn có thể đối chiếu và nhập lại các thay đổi chưa đồng bộ. Tiếp tục?'))return;
+ download('BanNhap_ChamCong_'+tkUsername+'_'+todayVN()+'.json',JSON.stringify(db,null,2),'application/json');
+ try{const r=await tkRpc('tk_read_state');tkBase=tkCopy(r.db);db=tkCopy(r.db);tkConflict=false;tkCache();refreshAll();tkProtectUi();tkConflictPanel();cloudSetStatus('online','Đã tải dữ liệu chung mới nhất')}catch(e){alert(e.message)}
+}
+async function tkLogout(){
+ if(cloudSyncPromise)await cloudSyncPromise;await cloudSync();
+ if(typeof tkFileWait==='function')await tkFileWait();
+ if(tkDiff(tkBase,db).length&&!confirm('Còn thay đổi chưa đồng bộ. Bản nháp sẽ giữ riêng cho tài khoản này trên máy. Bạn vẫn muốn đăng xuất?'))return;
+ saveDailyDraft();tkCache();tkReady=false;clearTimeout(cloudSaveTimer);clearInterval(tkTimer);cloudSaveSession(null);localStorage.removeItem(CLOUD_SESSION_KEY);location.reload();
+}
+function tkWrap(name,check){const old=window[name];if(typeof old!=='function')return;window[name]=function(...args){try{tkGuard(check(...args));return old.apply(this,args)}catch(e){alert(e.message);return null}}}
+function tkBindGuards(){
+ tkWrap('saveRecord',()=>val('empName'));tkWrap('addOT',()=>val('otName'));tkWrap('addEmployeeFromSettings',()=>({name:val('newEmpName'),code:val('newEmpCode')}));tkWrap('saveEmployeeTermination',()=>val('terminatedEmpName'));
+ tkWrap('printLeaveSlip',()=>val('leaveSlipEmployee'));tkWrap('leaveSlipExportData',()=>val('leaveSlipEmployee'));tkWrap('mergeLegacyData',source=>source);
+ for(const name of ['printLeVanQuangMonthlyOTSlip','printLeVanQuangOTSlip'])tkWrap(name,()=> 'Lê Văn Quang');
+ document.getElementById('saveBtn').onclick=saveRecord;document.getElementById('addOtBtn').onclick=addOT;document.getElementById('addEmployeeBtn').onclick=addEmployeeFromSettings;document.getElementById('saveTerminationBtn').onclick=saveEmployeeTermination;document.getElementById('printLeaveSlipBtn').onclick=printLeaveSlip;
+ document.getElementById('cloudLogoutBtn').onclick=tkLogout;document.getElementById('tkLogout').onclick=tkLogout;
+}
+async function tkLegacyExport(){
+ if(tkRole!=='owner')return;let items=[];for(const k of ['VN_TIMEKEEPING_APP_V2','VN_TIMEKEEPING_APP_V1']){try{const x=JSON.parse(localStorage.getItem(k)||'null');if(x)items.push({source:k,db:x})}catch(e){}}
+ if(indexedDB.databases){try{const databases=await indexedDB.databases();if(databases.some(x=>x.name==='VN_TIMEKEEPING_INDEXEDDB_V2')){const x=await new Promise((resolve,reject)=>{const req=indexedDB.open('VN_TIMEKEEPING_INDEXEDDB_V2');req.onerror=()=>reject(req.error);req.onsuccess=()=>{const d=req.result;if(!d.objectStoreNames.contains('appdata')){d.close();resolve(null);return}const q=d.transaction('appdata').objectStore('appdata').get('main');q.onsuccess=()=>{resolve(q.result);d.close()};q.onerror=()=>reject(q.error)}});if(x)items.push({source:'IndexedDB',db:x})}}catch(e){alert('Không đọc được bản IndexedDB cũ; dữ liệu cũ vẫn được giữ nguyên.')}}
+ if(!items.length){alert('Không tìm thấy bản lưu cũ ở trình duyệt này. Các file JSON gốc vẫn dùng được ở phần Khôi phục.');return}
+ items.sort((a,b)=>(b.db.__updatedAt||0)-(a.db.__updatedAt||0));download('DuLieu_Cu_GiuNguyen_'+todayVN()+'.json',JSON.stringify(items[0].db,null,2),'application/json');alert('Đã tải bản lưu cũ mới nhất. Không tự ghi đè dữ liệu chung. Nếu cần, dùng Gộp dữ liệu cũ ở Nhật ký/Dữ liệu sau khi đối chiếu.');
+}
+function restore(e){const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const next=JSON.parse(reader.result);if(!Array.isArray(next.records)||!Array.isArray(next.ots)||!Array.isArray(next.employees))throw Error('File không đúng định dạng.');tkGuard(next);const candidate=normalizeDB(next);candidate.audit??=[];candidate.leaveSettings??={defaultQuota:12,quotas:{}};tkDiff(tkBase,candidate);if(confirm('Thay thế dữ liệu trong phạm vi tài khoản bằng bản sao lưu? Dữ liệu ngoài quyền của bạn không thay đổi.')){db=candidate;saveDB();refreshAll();tkProtectUi()}}catch(err){alert(err.message)}finally{e.target.value=''}};reader.readAsText(file)}
+function deleteAll(){if(confirm('Xóa dữ liệu thuộc phạm vi tài khoản này? Dữ liệu ngoài quyền tài khoản được giữ nguyên.')){db=emptyDB();db.audit=[];db.leaveSettings={defaultQuota:12,quotas:{}};saveDB();refreshAll();tkProtectUi()}}
+async function tkBoot(){
+ const release=document.createElement('p');release.className='mini';release.textContent='Phiên bản 65 · 30/09/2026 · Đăng nhập và đồng bộ chung';document.getElementById('tkLogin').append(release);
+ document.getElementById('tkLoginForm').onsubmit=e=>{e.preventDefault();cloudAuthenticate()};document.getElementById('tkResolve').onclick=tkResolve;document.getElementById('tkLegacyExport').onclick=tkLegacyExport;
+ window.addEventListener('online',()=>cloudSync());window.addEventListener('offline',()=>cloudSetStatus('offline','Ngoại tuyến · đang giữ bản nháp'));tkTimer=setInterval(()=>{if(document.visibilityState==='visible')cloudSync()},15000);
+ // Revalidate existing manager session, but never read old employee data before server authorization.
+ try{cloudSession=JSON.parse(sessionStorage.getItem(TK_AUTH_KEY)||localStorage.getItem(CLOUD_SESSION_KEY)||'null');if(cloudSession){tkMessage('Đang kiểm tra phiên đăng nhập…');await tkEnter();return}}catch(e){tkMessage('Vui lòng đăng nhập lại. Dữ liệu và bản nháp trên máy vẫn được giữ.',true)}
+ cloudSaveSession(null);tkMessage('Quản lý dùng email hiện tại; nhân viên dùng tài khoản được cấp.');
+}
+window.addEventListener('DOMContentLoaded',tkBoot);
+</script>
+<script>
+/* Owner-only local HTML backup. Never publish an HTML containing a snapshot. */
+const TK_FILE_RELEASE='65.2026-09-30';
+const TK_SNAPSHOT_ID='tk-owner-snapshot';
+let tkFileConfig=null,tkFileBusy=null,tkFileBootUid='',tkFileStatus='Chưa liên kết file HTML gốc.';
+const tkFileUid=()=>tkReady&&tkRole==='owner'?cloudSession?.user?.id||'':'';
+function tkFileOwner(){const uid=tkFileUid();if(!uid)throw Error('Chỉ tài khoản quản lý được lưu bản HTML đầy đủ.');return uid}
+async function tkFileHash(text){return [...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)))].map(x=>x.toString(16).padStart(2,'0')).join('')}
+function tkSnapshotPattern(){return new RegExp('<scr'+'ipt\\b[^>]*\\bid=["\']'+TK_SNAPSHOT_ID+'["\'][^>]*>[\\s\\S]*?<\\/script>','gi')}
+function tkFileTemplate(source){
+ if(!source.includes('const TK_FILE_RELEASE=')||!source.includes('body class="tk-locked"')||!source.includes('tk_apply_changes'))throw Error('Hãy chọn file số 65 đã cập nhật ngày 30/09/2026. Không ghi vào file HTML khác.');
+ const clean=source.replace(tkSnapshotPattern(),'');
+ if(!/<\/body>\s*<\/html>\s*$/i.test(clean))throw Error('File HTML không đầy đủ; chưa ghi thay đổi.');
+ return clean;
+}
+function tkFilePack(source,data,ownerId,revision){
+ const clean=tkFileTemplate(source),snapshot={kind:'timekeeping-owner-backup',schema:1,ownerId,revision,savedAt:new Date().toISOString(),db:tkCopy(data)};
+ if(!ownerId||!Array.isArray(data.employees)||!Array.isArray(data.records)||!Array.isArray(data.ots))throw Error('Dữ liệu sao lưu không hợp lệ.');
+ const json=JSON.stringify(snapshot).replace(/[<>&\u2028\u2029]/g,c=>'\\u'+c.charCodeAt(0).toString(16).padStart(4,'0'));
+ return clean.replace(/<\/body>\s*<\/html>\s*$/i,'<scr'+'ipt type="application/json" id="'+TK_SNAPSHOT_ID+'">'+json+'</scr'+'ipt>\n</body>\n</html>');
+}
+function tkFileStore(mode,action){return new Promise((resolve,reject)=>{
+ const request=indexedDB.open('VN_TIMEKEEPING_FILE_LINKS',1);request.onupgradeneeded=()=>request.result.createObjectStore('links');request.onerror=()=>reject(request.error);
+ request.onsuccess=()=>{const d=request.result,t=d.transaction('links',mode);let result;try{const q=action(t.objectStore('links'));q.onsuccess=()=>{result=q.result}}catch(e){d.close();reject(e);return}t.oncomplete=()=>{d.close();resolve(result)};t.onerror=()=>{d.close();reject(t.error)};t.onabort=()=>{d.close();reject(t.error||Error('Không lưu được liên kết file.'))}};
+})}
+function tkFileMessage(text){tkFileStatus=text;const e=document.getElementById('tkFileStatus');if(e)e.textContent=text}
+function tkFileUi(){
+ let box=document.getElementById('tkFileBox');if(!box){box=document.createElement('div');box.id='tkFileBox';box.className='card';box.innerHTML='<h2>Tự lưu vào file HTML gốc (quản lý)</h2><p>Chọn file số 65 trên máy này. Sau khi đồng bộ, chương trình ghi bản dữ liệu chung vào chính file đó. Chỉ hoạt động khi trang đang mở và trình duyệt còn quyền ghi.</p><p><b>Bản HTML có dữ liệu đầy đủ là bản riêng của quản lý. Không gửi cho nhân viên hoặc đưa lên GitHub.</b> Nhân viên dùng trang web đăng nhập hoặc file Hoa không chứa dữ liệu.</p><div class="actions"><button class="btn primary" id="tkFileLink">Chọn file HTML gốc</button><button class="btn" id="tkFileResume">Cho phép ghi / Lưu ngay</button><button class="btn" id="tkFileDownload">Tải HTML kèm dữ liệu</button><button class="btn" id="tkFilePrevious">Tải bản trước lần ghi gần nhất</button><button class="btn warn" id="tkFileDisconnect">Ngừng tự lưu file</button></div><p id="tkFileStatus" role="status"></p><p id="tkFileSupport" class="mini"></p><div id="tkEmbeddedInfo" hidden><p id="tkEmbeddedDetail"></p><button class="btn" id="tkEmbeddedExport">Tải dữ liệu nhúng ra JSON</button></div>';
+ document.getElementById('tkLegacyBox').parentElement.after(box);
+ document.getElementById('tkFileLink').onclick=tkFileLink;document.getElementById('tkFileResume').onclick=tkFileResume;document.getElementById('tkFileDownload').onclick=tkFileDownload;document.getElementById('tkFilePrevious').onclick=tkFilePrevious;document.getElementById('tkFileDisconnect').onclick=tkFileDisconnect;document.getElementById('tkEmbeddedExport').onclick=tkEmbeddedExport;
+ }
+ box.hidden=!tkFileUid();box.style.display=tkFileUid()?'':'none';
+ document.getElementById('tkFileLink').disabled=!window.showOpenFilePicker;
+ document.getElementById('tkFileSupport').textContent=window.showOpenFilePicker?'Chrome/Edge trên PC: lần đầu chọn đúng file và chấp nhận quyền ghi. Mỗi lần mở lại có thể cần bấm Cho phép ghi.':'Trình duyệt này không hỗ trợ ghi trực tiếp file. Hãy dùng Chrome/Edge trên PC; hoặc tải HTML kèm dữ liệu.';
+ tkFileMessage(tkFileStatus);tkEmbeddedUi();
+}
+async function tkFileInit(){
+ const uid=tkFileUid();if(!uid){tkFileConfig=null;tkFileBootUid='';return}if(tkFileBootUid===uid)return;tkFileBootUid=uid;
+ try{tkFileConfig=await tkFileStore('readonly',s=>s.get(uid))||null;tkFileMessage(tkFileConfig?.enabled?'Đã liên kết '+tkFileConfig.handle.name+'. Đang kiểm tra quyền ghi…':'Chưa liên kết file HTML gốc.')}catch(e){tkFileMessage('Không khôi phục được liên kết file. Hãy chọn lại file HTML gốc.')}
+}
+async function tkFileSaveConfig(){const uid=tkFileOwner();await tkFileStore('readwrite',s=>s.put(tkFileConfig,uid))}
+async function tkFileLink(){
+ try{tkFileOwner();if(!window.showOpenFilePicker)throw Error('Tính năng ghi trực tiếp cần Chrome/Edge trên PC.');
+ if(!confirm('File được chọn sẽ chứa dữ liệu đầy đủ của quản lý, kể cả dữ liệu riêng. Chỉ chọn file gốc trong thư mục riêng trên máy; không chọn file dành cho nhân viên hoặc trong thư mục GitHub. Tiếp tục?'))return;
+ const [handle]=await window.showOpenFilePicker({id:'timekeeping-original',multiple:false,types:[{description:'File chấm công HTML',accept:{'text/html':['.html']}}]});
+ if(!/^ChamCong_NhanVien_VietNam_65(?:[_.-].*)?\.html$/i.test(handle.name))throw Error('Vui lòng chọn ChamCong_NhanVien_VietNam_65.html, không chọn file Hoa hoặc index.html.');
+ if(await handle.requestPermission({mode:'readwrite'})!=='granted')throw Error('Chưa được cấp quyền ghi. File chưa thay đổi.');
+ if(tkFileBusy)await tkFileBusy;
+ const source=await(await handle.getFile()).text();tkFileTemplate(source);
+ tkFileConfig={handle,enabled:true,expectedHash:await tkFileHash(source),previous:source,lastRevision:'',savedAt:''};await tkFileSaveConfig();
+ if(!await cloudSync())throw Error('Chưa đồng bộ được. File chỉ được ghi sau khi dữ liệu trên máy chủ đã xác nhận.');
+ await tkFileQueue(true);
+ }catch(e){if(e.name!=='AbortError')tkFileMessage(e.message)}
+}
+async function tkFileResume(){try{tkFileOwner();if(!tkFileConfig?.handle){await tkFileLink();return}if(await tkFileConfig.handle.requestPermission({mode:'readwrite'})!=='granted')throw Error('Chưa được cấp quyền ghi.');tkFileConfig.enabled=true;await tkFileSaveConfig();if(!await cloudSync())throw Error('Chưa đồng bộ được dữ liệu.');await tkFileQueue(true)}catch(e){tkFileMessage(e.message)}}
+async function tkFileWrite(data,revision,uid,force){
+ const config=tkFileConfig;if(tkFileUid()!==uid||!config?.enabled||tkConflict)return;
+ if(await config.handle.queryPermission({mode:'readwrite'})!=='granted'){tkFileMessage('Đã liên kết '+config.handle.name+'; cần bấm “Cho phép ghi / Lưu ngay”.');return}
+ if(!force&&config.lastRevision===revision&&revision)return;
+ const file=await config.handle.getFile(),source=await file.text(),hash=await tkFileHash(source);
+ if(hash!==config.expectedHash){config.enabled=false;await tkFileSaveConfig();throw Error('File đã thay đổi bên ngoài chương trình. Đã dừng tự lưu để tránh ghi đè; kiểm tra rồi chọn lại file.')}
+ const content=tkFilePack(source,data,uid,revision);config.previous=source;await tkFileSaveConfig();
+ if(tkFileUid()!==uid||!config.enabled||tkConflict)return;
+ // Recheck immediately before committing. The stream is not committed until close().
+ if(await tkFileHash(await(await config.handle.getFile()).text())!==hash)throw Error('File đang được nơi khác chỉnh sửa; chưa ghi thay đổi.');
+ let stream;try{stream=await config.handle.createWritable();await stream.write(content);await stream.close()}catch(e){if(stream)try{await stream.abort()}catch(_){}throw e}
+ const result=await(await config.handle.getFile()).text(),expected=await tkFileHash(content);
+ if(await tkFileHash(result)!==expected){config.enabled=false;throw Error('Không xác minh được lần ghi file. Bản trước vẫn được giữ để tải lại.')}
+ config.expectedHash=expected;config.lastRevision=revision;config.savedAt=new Date().toISOString();await tkFileSaveConfig();
+ tkFileMessage('Đã ghi dữ liệu chung vào '+config.handle.name+' lúc '+new Date(config.savedAt).toLocaleString('vi-VN')+'.');
+}
+function tkFileQueue(force=false){
+ const uid=tkFileUid();if(!uid||!tkFileConfig?.enabled||tkConflict||!tkBase)return Promise.resolve();if(tkFileBusy)return tkFileBusy;
+ const data=tkCopy(tkBase),revision=tkRevision;const task=()=>tkFileWrite(data,revision,uid,force);
+ tkFileBusy=(navigator.locks?navigator.locks.request('tk-file-'+uid,task):task()).catch(e=>tkFileMessage('Chưa ghi file HTML: '+e.message)).finally(()=>{tkFileBusy=null});return tkFileBusy;
+}
+async function tkFileWait(){if(tkFileBusy)await tkFileBusy}
+async function tkFileDisconnect(){try{tkFileOwner();if(tkFileBusy)await tkFileBusy;if(tkFileConfig){tkFileConfig.enabled=false;await tkFileSaveConfig()}tkFileMessage('Đã ngừng tự lưu file. Dữ liệu chung trên máy chủ và file đã lưu giữ nguyên.')}catch(e){tkFileMessage(e.message)}}
+async function tkFilePrevious(){try{tkFileOwner();if(!tkFileConfig?.previous)throw Error('Chưa có bản trước lần ghi.');download('ChamCong_NhanVien_VietNam_65_truoc_lan_ghi.html',tkFileConfig.previous,'text/html;charset=utf-8')}catch(e){tkFileMessage(e.message)}}
+async function tkFileDownload(){
+ try{const uid=tkFileOwner();if(!confirm('Bản HTML tải xuống chứa toàn bộ dữ liệu quản lý. Không gửi bản này cho nhân viên hoặc đưa lên website công khai. Tiếp tục?'))return;if(!await cloudSync())throw Error('Cần đồng bộ thành công trước khi tải bản HTML đầy đủ.');
+ let source;if(tkFileConfig?.handle){source=await(await tkFileConfig.handle.getFile()).text()}else{const response=await fetch(location.href,{cache:'no-store'});if(!response.ok)throw Error('Không đọc được mã chương trình.');source=await response.text()}
+ const content=tkFilePack(source,tkBase,uid,tkRevision);download('ChamCong_NhanVien_VietNam_65_kem_du_lieu_'+todayVN()+'.html',content,'text/html;charset=utf-8');tkFileMessage('Đã tạo bản HTML kèm dữ liệu chung. Giữ file ở nơi riêng của quản lý.');
+ }catch(e){tkFileMessage('Không tạo được bản HTML: '+e.message+' Nếu đang mở file trên máy, hãy liên kết file gốc bằng Chrome/Edge.')}
+}
+function tkEmbeddedData(){const uid=tkFileUid(),node=document.getElementById(TK_SNAPSHOT_ID);if(!uid||!node)return null;try{const x=JSON.parse(node.textContent);return x.kind==='timekeeping-owner-backup'&&x.schema===1&&x.ownerId===uid&&Array.isArray(x.db?.records)?x:null}catch(e){return null}}
+function tkEmbeddedUi(){const x=tkEmbeddedData(),box=document.getElementById('tkEmbeddedInfo');if(!box)return;box.hidden=!x;if(x)document.getElementById('tkEmbeddedDetail').textContent='File có bản dữ liệu dự phòng lúc '+new Date(x.savedAt).toLocaleString('vi-VN')+' ('+x.db.records.length+' dòng chấm công). Bản này không tự ghi đè dữ liệu chung; tải JSON để đối chiếu khi cần.'}
+function tkEmbeddedExport(){const x=tkEmbeddedData();if(x)download('DuLieu_Nhung_HTML_'+todayVN()+'.json',JSON.stringify(x.db,null,2),'application/json')}
 </script>
 </body>
 </html>

@@ -1,5 +1,13 @@
 # Lịch sử cập nhật
 
+## 2026-09-30
+
+- Cập nhật bản 65: bắt buộc đăng nhập; dữ liệu được kiểm soát quyền đọc và ghi trên máy chủ, đồng bộ chung theo thay đổi từng dòng và phát hiện xung đột.
+- Giữ các chức năng chấm công, tăng ca, báo cáo, phép và xuất tài liệu; cập nhật bộ xuất Word DOCX giữ bố cục mẫu in.
+- Bổ sung mục riêng cho quản lý để liên kết file HTML gốc trên PC và lưu dữ liệu đã đồng bộ vào file sau khi được cấp quyền. Chỉ tự lưu khi chương trình đang mở; dừng khi file bị sửa từ nơi khác hoặc mất quyền ghi.
+- Có tải HTML kèm dữ liệu, tải bản trước lần ghi và trích dữ liệu nhúng ra JSON. Các bản chứa dữ liệu là bản riêng, không dùng làm file phát hành công khai.
+- Mã website công khai không chứa dữ liệu chấm công, mật khẩu hoặc phiên đăng nhập. Dữ liệu hiện có được giữ nguyên trên máy chủ và thiết bị.
+
 ## 2026-09-02
 
 - Bảng tổng hợp tháng: đổi tên cột “Giờ công” thành “Tổng giờ công” trên màn hình, bản in/PDF và file Excel.
