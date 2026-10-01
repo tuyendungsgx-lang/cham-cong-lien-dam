@@ -1439,7 +1439,7 @@ async function tkLegacyExport(){
 function restore(e){const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const next=JSON.parse(reader.result);if(!Array.isArray(next.records)||!Array.isArray(next.ots)||!Array.isArray(next.employees))throw Error('File không đúng định dạng.');tkGuard(next);const candidate=normalizeDB(next);candidate.audit??=[];candidate.leaveSettings??={defaultQuota:12,quotas:{}};tkDiff(tkBase,candidate);if(confirm('Thay thế dữ liệu trong phạm vi tài khoản bằng bản sao lưu? Dữ liệu ngoài quyền của bạn không thay đổi.')){db=candidate;saveDB();refreshAll();tkProtectUi()}}catch(err){alert(err.message)}finally{e.target.value=''}};reader.readAsText(file)}
 function deleteAll(){if(confirm('Xóa dữ liệu thuộc phạm vi tài khoản này? Dữ liệu ngoài quyền tài khoản được giữ nguyên.')){db=emptyDB();db.audit=[];db.leaveSettings={defaultQuota:12,quotas:{}};saveDB();refreshAll();tkProtectUi()}}
 async function tkBoot(){
- const release=document.createElement('p');release.className='mini';release.textContent='Phiên bản 65 · 30/09/2026 · Đăng nhập và đồng bộ chung';document.getElementById('tkLogin').append(release);
+ const release=document.createElement('p');release.className='mini';release.textContent='Phiên bản 65 · 01/10/2026 · Đăng nhập và đồng bộ chung';document.getElementById('tkLogin').append(release);
  document.getElementById('tkLoginForm').onsubmit=e=>{e.preventDefault();cloudAuthenticate()};document.getElementById('tkResolve').onclick=tkResolve;document.getElementById('tkLegacyExport').onclick=tkLegacyExport;
  window.addEventListener('online',()=>cloudSync());window.addEventListener('offline',()=>cloudSetStatus('offline','Ngoại tuyến · đang giữ bản nháp'));tkTimer=setInterval(()=>{if(document.visibilityState==='visible')cloudSync()},15000);
  // Revalidate existing manager session, but never read old employee data before server authorization.
@@ -1450,7 +1450,7 @@ window.addEventListener('DOMContentLoaded',tkBoot);
 </script>
 <script>
 /* Owner-only local HTML backup. Never publish an HTML containing a snapshot. */
-const TK_FILE_RELEASE='65.2026-09-30';
+const TK_FILE_RELEASE='65.2026-10-01';
 const TK_SNAPSHOT_ID='tk-owner-snapshot';
 let tkFileConfig=null,tkFileBusy=null,tkFileBootUid='',tkFileStatus='Chưa liên kết file HTML gốc.';
 const tkFileUid=()=>tkReady&&tkRole==='owner'?cloudSession?.user?.id||'':'';
@@ -1481,28 +1481,34 @@ function tkFileUi(){
  }
  box.hidden=!tkFileUid();box.style.display=tkFileUid()?'':'none';
  document.getElementById('tkFileLink').disabled=!window.showOpenFilePicker;
- document.getElementById('tkFileSupport').textContent=window.showOpenFilePicker?'Chrome/Edge trên PC: lần đầu chọn đúng file và chấp nhận quyền ghi. Mỗi lần mở lại có thể cần bấm Cho phép ghi.':'Trình duyệt này không hỗ trợ ghi trực tiếp file. Hãy dùng Chrome/Edge trên PC; hoặc tải HTML kèm dữ liệu.';
+ document.getElementById('tkFileSupport').textContent=window.showOpenFilePicker?'Bước 1: Chọn file HTML gốc. Bước 2: Bấm “Cho phép ghi / Lưu ngay” và chấp nhận quyền ghi của Chrome/Edge. Chọn file chưa ghi dữ liệu. Mỗi lần mở lại có thể cần cấp quyền ghi.':'Trình duyệt này không hỗ trợ ghi trực tiếp file. Hãy dùng Chrome/Edge trên PC; hoặc tải HTML kèm dữ liệu.';
  tkFileMessage(tkFileStatus);tkEmbeddedUi();
 }
 async function tkFileInit(){
  const uid=tkFileUid();if(!uid){tkFileConfig=null;tkFileBootUid='';return}if(tkFileBootUid===uid)return;tkFileBootUid=uid;
- try{tkFileConfig=await tkFileStore('readonly',s=>s.get(uid))||null;tkFileMessage(tkFileConfig?.enabled?'Đã liên kết '+tkFileConfig.handle.name+'. Đang kiểm tra quyền ghi…':'Chưa liên kết file HTML gốc.')}catch(e){tkFileMessage('Không khôi phục được liên kết file. Hãy chọn lại file HTML gốc.')}
+ try{tkFileConfig=await tkFileStore('readonly',s=>s.get(uid))||null;tkFileMessage(tkFileConfig?.handle?(tkFileConfig.enabled?'Đã liên kết '+tkFileConfig.handle.name+'. Đang kiểm tra quyền ghi…':'Đã chọn '+tkFileConfig.handle.name+'. Tự lưu đang tắt; bấm “Cho phép ghi / Lưu ngay” để bật.'):'Chưa liên kết file HTML gốc.')}catch(e){tkFileMessage('Không khôi phục được liên kết file. Hãy chọn lại file HTML gốc.')}
 }
 async function tkFileSaveConfig(){const uid=tkFileOwner();await tkFileStore('readwrite',s=>s.put(tkFileConfig,uid))}
 async function tkFileLink(){
- try{tkFileOwner();if(!window.showOpenFilePicker)throw Error('Tính năng ghi trực tiếp cần Chrome/Edge trên PC.');
- if(!confirm('File được chọn sẽ chứa dữ liệu đầy đủ của quản lý, kể cả dữ liệu riêng. Chỉ chọn file gốc trong thư mục riêng trên máy; không chọn file dành cho nhân viên hoặc trong thư mục GitHub. Tiếp tục?'))return;
+ try{const uid=tkFileOwner();if(!window.showOpenFilePicker)throw Error('Tính năng ghi trực tiếp cần Chrome/Edge trên PC.');
+ // Open immediately in the click handler: a confirm dialog or asynchronous work can expire user activation.
  const [handle]=await window.showOpenFilePicker({id:'timekeeping-original',multiple:false,types:[{description:'File chấm công HTML',accept:{'text/html':['.html']}}]});
+ if(tkFileUid()!==uid)throw Error('Tài khoản đã thay đổi. Hãy chọn lại file sau khi đăng nhập quản lý.');
  if(!/^ChamCong_NhanVien_VietNam_65(?:[_.-].*)?\.html$/i.test(handle.name))throw Error('Vui lòng chọn ChamCong_NhanVien_VietNam_65.html, không chọn file Hoa hoặc index.html.');
- if(await handle.requestPermission({mode:'readwrite'})!=='granted')throw Error('Chưa được cấp quyền ghi. File chưa thay đổi.');
  if(tkFileBusy)await tkFileBusy;
  const source=await(await handle.getFile()).text();tkFileTemplate(source);
- tkFileConfig={handle,enabled:true,expectedHash:await tkFileHash(source),previous:source,lastRevision:'',savedAt:''};await tkFileSaveConfig();
- if(!await cloudSync())throw Error('Chưa đồng bộ được. File chỉ được ghi sau khi dữ liệu trên máy chủ đã xác nhận.');
- await tkFileQueue(true);
+ const expectedHash=await tkFileHash(source);
+ if(tkFileUid()!==uid)throw Error('Tài khoản đã thay đổi. Hãy chọn lại file sau khi đăng nhập quản lý.');
+ tkFileConfig={handle,enabled:false,expectedHash,previous:source,lastRevision:'',savedAt:''};await tkFileSaveConfig();
+ tkFileMessage('Đã chọn '+handle.name+'. File chưa thay đổi. Bấm “Cho phép ghi / Lưu ngay” để cấp quyền và lưu dữ liệu chung.');
  }catch(e){if(e.name!=='AbortError')tkFileMessage(e.message)}
 }
-async function tkFileResume(){try{tkFileOwner();if(!tkFileConfig?.handle){await tkFileLink();return}if(await tkFileConfig.handle.requestPermission({mode:'readwrite'})!=='granted')throw Error('Chưa được cấp quyền ghi.');tkFileConfig.enabled=true;await tkFileSaveConfig();if(!await cloudSync())throw Error('Chưa đồng bộ được dữ liệu.');await tkFileQueue(true)}catch(e){tkFileMessage(e.message)}}
+async function tkFileResume(){try{const uid=tkFileOwner(),config=tkFileConfig;if(!config?.handle){await tkFileLink();return}
+ // Request write access on a separate fresh click, never after the file picker or a confirm dialog.
+ if(await config.handle.requestPermission({mode:'readwrite'})!=='granted')throw Error('Chưa được cấp quyền ghi. File chưa thay đổi.');
+ if(tkFileUid()!==uid||tkFileConfig!==config)throw Error('Tài khoản hoặc file đã thay đổi. Hãy chọn lại file.');
+ config.enabled=true;await tkFileSaveConfig();if(!await cloudSync())throw Error('Chưa đồng bộ được dữ liệu.');await tkFileQueue(true)
+ }catch(e){tkFileMessage(e.message)}}
 async function tkFileWrite(data,revision,uid,force){
  const config=tkFileConfig;if(tkFileUid()!==uid||!config?.enabled||tkConflict)return;
  if(await config.handle.queryPermission({mode:'readwrite'})!=='granted'){tkFileMessage('Đã liên kết '+config.handle.name+'; cần bấm “Cho phép ghi / Lưu ngay”.');return}

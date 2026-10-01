@@ -1,5 +1,11 @@
 # Lịch sử cập nhật
 
+## 2026-10-01
+
+- Sửa lỗi Chrome báo thiếu thao tác người dùng khi chọn file HTML gốc: mở hộp chọn ngay trong lần bấm, không chặn bằng hộp xác nhận trước đó.
+- Tách chọn file và cấp quyền ghi thành hai lần bấm. Chọn file chỉ liên kết, chưa ghi dữ liệu; bấm “Cho phép ghi / Lưu ngay” mới xin quyền ghi và lưu dữ liệu đã được máy chủ xác nhận.
+- Giữ cảnh báo dữ liệu riêng trên màn hình, bảo vệ khi đổi tài khoản, hủy chọn file hoặc chọn nhầm file. Không thay đổi dữ liệu chấm công, phân quyền hoặc mẫu Word.
+
 ## 2026-09-30
 
 - Cập nhật bản 65: bắt buộc đăng nhập; dữ liệu được kiểm soát quyền đọc và ghi trên máy chủ, đồng bộ chung theo thay đổi từng dòng và phát hiện xung đột.
